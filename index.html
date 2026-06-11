@@ -1525,12 +1525,20 @@
             const groupSelect = document.getElementById('p-group');
             groupSelect.innerHTML = '';
             if (state.currentUser.role === 'admin') {
-                state.groups.forEach(g => {
-                    groupSelect.innerHTML += `<option value="${g.id}">${g.name}</option>`;
-                });
+                if (state.groups.length === 0) {
+                    groupSelect.innerHTML = '<option value="">No hay grupos creados</option>';
+                } else {
+                    state.groups.forEach(g => {
+                        if (g) groupSelect.innerHTML += `<option value="${g.id}">${g.name}</option>`;
+                    });
+                }
             } else {
                 const userGroup = state.groups.find(g => g.id === state.currentUser.groupId);
-                groupSelect.innerHTML = `<option value="${userGroup.id}">${userGroup.name}</option>`;
+                if (userGroup) {
+                    groupSelect.innerHTML = `<option value="${userGroup.id}">${userGroup.name}</option>`;
+                } else {
+                    groupSelect.innerHTML = `<option value="">Grupo no asignado o inaccesible</option>`;
+                }
                 groupSelect.disabled = true;
             }
 
