@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Liderazgo JA</title>
+    <style>
+        :root {
+            --primary: #702020;
+            --primary-dark: #4a1414;
+            --accent: #C5A028;
+            --gray-100: #f3f4f6;
+            --white: #ffffff;
+            --shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: linear-gradient(135deg, var(--primary) 0%, #2a0a0a 100%);
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0;
+            color: #374151;
+        }
+
+        .login-container {
+            background: var(--white);
+            padding: 2.5rem;
+            border-radius: 20px;
+            box-shadow: var(--shadow);
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+
+        .logo {
+            width: 120px;
+            height: 120px;
+            object-fit: contain;
+            margin-bottom: 1.5rem;
+            filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1));
+        }
+
+        h1 {
+            font-size: 1.5rem;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+        }
+
+        p.subtitle {
+            color: #6b7280;
+            font-size: 0.9rem;
+            margin-bottom: 2rem;
+        }
+
+        .form-group {
+            text-align: left;
+            margin-bottom: 1.25rem;
+        }
+
+        label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: #4b5563;
+        }
+
+        input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 2px solid var(--gray-100);
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: all 0.2s;
+            box-sizing: border-box;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 4px rgba(197, 160, 40, 0.1);
+        }
+
+        .btn {
+            width: 100%;
+            padding: 0.85rem;
+            border: none;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-top: 1rem;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-1px);
+        }
+
+        .footer-link {
+            margin-top: 1.5rem;
+            font-size: 0.875rem;
+        }
+
+        .footer-link a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 700;
+        }
+
+        .footer-link a:hover {
+            text-decoration: underline;
+        }
+
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1000;
+        }
+
+        .toast {
+            background: white;
+            padding: 1rem 1.5rem;
+            border-radius: 10px;
+            box-shadow: var(--shadow);
+            margin-bottom: 0.75rem;
+            border-left: 4px solid var(--primary);
+            animation: slideDown 0.3s ease;
+        }
+
+        @keyframes slideDown {
+            from { transform: translateY(-100%); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container" id="login-box">
+        <img src="img/logo.png" alt="Logo" class="logo">
+        <div id="auth-content">
+            <h1>Bienvenido</h1>
+            <p class="subtitle">Gestión de Liderazgo JA</p>
+            
+            <div class="form-group">
+                <label>Correo Electrónico</label>
+                <input type="email" id="email" placeholder="ejemplo@correo.com">
+            </div>
+            <div class="form-group">
+                <label>Contraseña</label>
+                <input type="password" id="password" placeholder="••••••••">
+            </div>
+            
+            <button class="btn btn-primary" onclick="handleAuth()">Iniciar Sesión</button>
+            
+            <div class="footer-link">
+                ¿No tienes cuenta? <a href="#" onclick="toggleMode()">Regístrate aquí</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast-container" id="toast-container"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        const supabaseUrl = 'https://uokktpylaeeusezdwqqb.supabase.co';
+        const supabaseKey = 'sb_publishable_NI8guSM1ualSIrpLZ9sz0A_EggPNZBw';
+        const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
+
+        let isLogin = true;
+
+        function toggleMode() {
+            isLogin = !isLogin;
+            const content = document.getElementById('auth-content');
+            if (isLogin) {
+                content.innerHTML = `
+                    <h1>Bienvenido</h1>
+                    <p class="subtitle">Gestión de Liderazgo JA</p>
+                    <div class="form-group"><label>Correo Electrónico</label><input type="email" id="email" placeholder="ejemplo@correo.com"></div>
+                    <div class="form-group"><label>Contraseña</label><input type="password" id="password" placeholder="••••••••"></div>
+                    <button class="btn btn-primary" onclick="handleAuth()">Iniciar Sesión</button>
+                    <div class="footer-link">¿No tienes cuenta? <a href="#" onclick="toggleMode()">Regístrate aquí</a></div>
+                `;
+            } else {
+                content.innerHTML = `
+                    <h1>Crear Cuenta</h1>
+                    <p class="subtitle">Únete al programa de liderazgo</p>
+                    <div class="form-group"><label>Nombre Completo</label><input type="text" id="name" placeholder="Tu nombre"></div>
+                    <div class="form-group"><label>Correo Electrónico</label><input type="email" id="email" placeholder="ejemplo@correo.com"></div>
+                    <div class="form-group"><label>Contraseña</label><input type="password" id="password" placeholder="Mínimo 6 caracteres"></div>
+                    <button class="btn btn-primary" onclick="handleAuth()">Registrarse</button>
+                    <div class="footer-link">¿Ya tienes cuenta? <a href="#" onclick="toggleMode()">Inicia sesión</a></div>
+                `;
+            }
+        }
+
+        async function handleAuth() {
+            const email = document.getElementById('email').value.trim();
+            const pass = document.getElementById('password').value;
+
+            if (isLogin) {
+                const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password: pass });
+                
+                if (error) {
+                    // Diagnóstico de error 400 / Invalid Credentials
+                    if (error.message.includes('Email logins are disabled')) {
+                        return showToast("Acceso deshabilitado en Supabase.", "error");
+                    } else if (error.message.includes('Email not confirmed')) {
+                        return showToast("Email no verificado. Revisa tu correo o desactiva 'Confirm Email' en Supabase.", "error");
+                    } else if (error.status === 400) {
+                        return showToast("Credenciales incorrectas o usuario inexistente.", "error");
+                    } else if (error.status === 400 || error.message.includes('Invalid login credentials')) { // Credenciales incorrectas
+                        // Este es el error que el usuario está viendo.
+                        return showToast("Correo electrónico o contraseña incorrectos. Por favor, verifica tus credenciales.", "error");
+                    }
+                    console.error("Error de autenticación detallado:", error);
+                    return showToast(error.message, "error");
+                }
+
+                // Obtener perfil para ver rol y grupo.
+                const { data: profile, error: profileError } = await supabaseClient.from('profiles').select('*').eq('id', data.user.id).maybeSingle();
+                
+                if (profileError || !profile) {
+                    if (profileError) console.error("Error de perfil:", profileError);
+                    await supabaseClient.auth.signOut();
+                    return showToast("No se encontró un perfil asociado a esta cuenta. Verifica la tabla 'profiles' en Supabase.");
+                }
+
+                const userRole = (profile.role || '').toLowerCase();
+                if (userRole !== 'admin' && !profile.group_id) {
+                    await supabaseClient.auth.signOut();
+                    return showToast('No tienes grupo asignado. Contacta al administrador.', "error");
+                }
+
+                completeLogin({ 
+                    id: data.user.id, 
+                    name: profile.full_name, 
+                    email: profile.email, 
+                    role: profile.role, 
+                    groupId: profile.group_id 
+                });
+            } else {
+                const nameInput = document.getElementById('name');
+                const name = nameInput ? nameInput.value.trim() : '';
+                if (!name || !email || pass.length < 6) return showToast('Datos incompletos (Nombre y Password min 6 caracteres)', "error");
+
+                const { data, error } = await supabaseClient.auth.signUp({ 
+                    email, 
+                    password: pass,
+                    options: { data: { full_name: name } }
+                });
+
+                if (error) {
+                    // Manejo detallado de errores de registro
+                    if (error.message.includes('User already registered')) {
+                        return showToast("Ya existe una cuenta con este correo electrónico. Intenta iniciar sesión.", "error");
+                    } else if (error.message.includes('Password should be at least 6 characters')) {
+                        return showToast("La contraseña debe tener al menos 6 caracteres.", "error");
+                    } else if (error.message.includes('Email logins are disabled')) {
+                        return showToast("Error de configuración: El registro por email está desactivado en el Dashboard de Supabase.", "error");
+                    }
+                    console.error("Error de registro detallado:", error);
+                    return showToast(error.message, "error");
+                }
+                if (!data.user) return showToast('Error inesperado durante el registro. Por favor, inténtalo de nuevo.', 'error');
+
+                showToast('Cuenta creada con éxito. Ya puedes iniciar sesión.');
+                setTimeout(() => {
+                    isLogin = true;
+                    toggleMode();
+                }, 1500);
+            }
+        }
+
+        function completeLogin(user) {
+            localStorage.setItem('liderazgo_session', JSON.stringify(user));
+            // Pequeño retraso para evitar interrumpir procesos de la UI o sonidos
+            setTimeout(() => {
+                window.location.href = 'index.html';
+            }, 500);
+        }
+
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            if (type === 'error') {
+                toast.style.borderLeftColor = '#dc2626';
+                toast.style.color = '#dc2626';
+            }
+            toast.innerHTML = `<span>${message}</span>`;
+            container.appendChild(toast);
+
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transition = 'opacity 0.3s';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+    </script>
+</body>
+</html>

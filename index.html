@@ -1,0 +1,2617 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Requisitos - Programa de Liderazgo Juvenil</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #702020; /* Color Granate del logo */
+            --primary-dark: #4a1414;
+            --success: #16a34a;
+            --warning: #C5A028; /* Color Dorado del logo */
+            --danger: #dc2626;
+            --gray-50: #f9fafb;
+            --gray-100: #f1f1f1;
+            --gray-200: #e5e7eb;
+            --gray-300: #d1d5db;
+            --gray-400: #9ca3af;
+            --gray-500: #6b7280;
+            --gray-600: #4b5563;
+            --gray-700: #374151;
+            --gray-800: #1f2937;
+            --gray-900: #111827;
+            --shadow: 0 1px 3px 0 rgba(0,0,0,0.1), 0 1px 2px 0 rgba(0,0,0,0.06);
+            --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05);
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--gray-100);
+            color: var(--gray-800);
+            line-height: 1.6;
+        }
+
+        .header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+            padding: 1rem 2rem;
+            box-shadow: var(--shadow-md);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 0.875rem;
+        }
+
+        .nav-tabs {
+            display: flex;
+            background: white;
+            border-bottom: 2px solid var(--gray-200);
+            padding: 0 2rem;
+            overflow-x: auto;
+            position: sticky;
+            top: 70px;
+            z-index: 99;
+        }
+
+        .nav-tab {
+            padding: 0.75rem 1.5rem;
+            cursor: pointer;
+            border: none;
+            background: none;
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: var(--gray-500);
+            border-bottom: 3px solid transparent;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+
+        .nav-tab:hover {
+            color: var(--primary);
+            background: var(--gray-50);
+        }
+
+        .nav-tab.active {
+            color: var(--primary);
+            border-bottom-color: var(--primary);
+            font-weight: 600;
+        }
+
+        .main-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 1px solid var(--gray-200);
+        }
+
+        .card-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--gray-800);
+        }
+
+        .btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.875rem;
+            font-weight: 500;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-1px);
+        }
+
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #15803d;
+        }
+
+        .btn-warning {
+            background: var(--warning);
+            color: white;
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #b91c1c;
+        }
+
+        .btn-outline {
+            background: white;
+            color: var(--gray-600);
+            border: 1px solid var(--gray-300);
+        }
+
+        .btn-outline:hover {
+            background: var(--gray-50);
+            border-color: var(--gray-400);
+        }
+
+        .btn-sm {
+            padding: 0.375rem 0.75rem;
+            font-size: 0.8rem;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--gray-700);
+            margin-bottom: 0.375rem;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 0.625rem 0.875rem;
+            border: 1px solid var(--gray-300);
+            border-radius: 8px;
+            font-size: 0.9rem;
+            transition: border-color 0.2s;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+
+        .table-container {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 0.75rem 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--gray-200);
+        }
+
+        th {
+            background: var(--gray-50);
+            font-weight: 600;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--gray-600);
+            position: sticky;
+            top: 0;
+        }
+
+        tr:hover {
+            background: var(--gray-50);
+        }
+
+        .progress-bar-container {
+            background: var(--gray-200);
+            border-radius: 999px;
+            height: 8px;
+            overflow: hidden;
+            margin: 0.25rem 0;
+        }
+
+        .progress-bar {
+            height: 100%;
+            border-radius: 999px;
+            transition: width 0.5s ease;
+        }
+
+        .progress-bar.success { background: var(--success); }
+        .progress-bar.warning { background: var(--warning); }
+        .progress-bar.danger { background: var(--danger); }
+        .progress-bar.primary { background: var(--primary); }
+
+        .progress-text {
+            font-size: 0.8rem;
+            color: var(--gray-500);
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.25rem 0.625rem;
+            border-radius: 999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .badge-success {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .badge-warning {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .badge-danger {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .badge-info {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.25rem;
+            box-shadow: var(--shadow);
+            border-left: 4px solid var(--primary);
+        }
+
+        .stat-card.success { border-left-color: var(--success); }
+        .stat-card.warning { border-left-color: var(--warning); }
+        .stat-card.danger { border-left-color: var(--danger); }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--gray-900);
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            color: var(--gray-500);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .section-accordion {
+            border: 1px solid var(--gray-200);
+            border-radius: 10px;
+            margin-bottom: 0.75rem;
+            overflow: hidden;
+        }
+
+        .section-header {
+            padding: 1rem 1.25rem;
+            background: var(--gray-50);
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 600;
+            transition: background 0.2s;
+        }
+
+        .section-header:hover {
+            background: var(--gray-100);
+        }
+
+        .section-header .arrow {
+            transition: transform 0.3s;
+        }
+
+        .section-header.open .arrow {
+            transform: rotate(180deg);
+        }
+
+        .section-body {
+            display: none;
+            padding: 1rem 1.25rem;
+        }
+
+        .section-body.open {
+            display: block;
+        }
+
+        .req-row {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr auto;
+            gap: 0.75rem;
+            align-items: center;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid var(--gray-100);
+        }
+
+        .req-row:last-child {
+            border-bottom: none;
+        }
+
+        .req-name {
+            font-size: 0.875rem;
+            color: var(--gray-700);
+        }
+
+        .req-deadline {
+            font-size: 0.8rem;
+            color: var(--gray-500);
+        }
+
+        .req-status {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .checkbox-custom {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+            accent-color: var(--success);
+        }
+
+        .date-input {
+            padding: 0.375rem 0.5rem;
+            border: 1px solid var(--gray-300);
+            border-radius: 6px;
+            font-size: 0.8rem;
+            width: 130px;
+        }
+
+        .date-input:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal {
+            background: white;
+            border-radius: 16px;
+            max-width: 600px;
+            width: 100%;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .modal-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--gray-200);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h2 {
+            font-size: 1.25rem;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--gray-400);
+            padding: 0.25rem;
+        }
+
+        .modal-body {
+            padding: 1.5rem;
+        }
+
+        .modal-footer {
+            padding: 1rem 1.5rem;
+            border-top: 1px solid var(--gray-200);
+            display: flex;
+            justify-content: flex-end;
+            gap: 0.75rem;
+        }
+
+        .participant-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.25rem;
+            box-shadow: var(--shadow);
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 2px solid transparent;
+        }
+
+        .participant-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+            border-color: var(--primary);
+        }
+
+        .participant-card .name {
+            font-weight: 600;
+            font-size: 1rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .participant-card .info {
+            font-size: 0.8rem;
+            color: var(--gray-500);
+        }
+
+        .participants-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1rem;
+        }
+
+        .report-container {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+        }
+
+        .report-header {
+            text-align: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid var(--gray-200);
+        }
+
+        .report-header h2 {
+            color: var(--gray-800);
+            margin-bottom: 0.5rem;
+        }
+
+        .report-header p {
+            color: var(--gray-500);
+            font-size: 0.9rem;
+        }
+
+        .search-box {
+            position: relative;
+            margin-bottom: 1.5rem;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 0.75rem 1rem 0.75rem 2.5rem;
+            border: 1px solid var(--gray-300);
+            border-radius: 10px;
+            font-size: 0.9rem;
+        }
+
+        .search-box input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        .search-box::before {
+            content: "🔍";
+            position: absolute;
+            left: 0.75rem;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        .filter-bar {
+            display: flex;
+            gap: 0.75rem;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .filter-bar select {
+            padding: 0.5rem 0.75rem;
+            border: 1px solid var(--gray-300);
+            border-radius: 8px;
+            font-size: 0.875rem;
+        }
+
+        .toast-container {
+            position: fixed;
+            top: 80px;
+            right: 2rem;
+            z-index: 2000;
+        }
+
+        .toast {
+            background: white;
+            padding: 1rem 1.5rem;
+            border-radius: 10px;
+            box-shadow: var(--shadow-lg);
+            margin-bottom: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            animation: slideIn 0.3s ease;
+            border-left: 4px solid var(--success);
+        }
+
+        .toast.error {
+            border-left-color: var(--danger);
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        @media print {
+            .header, .nav-tabs, .btn, .no-print {
+                display: none !important;
+            }
+            .main-content {
+                padding: 0;
+            }
+            .card {
+                box-shadow: none;
+                border: 1px solid var(--gray-200);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                padding: 1rem;
+            }
+
+            .req-row {
+                grid-template-columns: 1fr;
+                gap: 0.5rem;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: var(--gray-400);
+        }
+
+        .empty-state .icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .empty-state p {
+            font-size: 1rem;
+        }
+
+        .detail-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 2rem;
+        }
+
+        .detail-header .participant-info h2 {
+            font-size: 1.5rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .detail-header .participant-info p {
+            color: var(--gray-500);
+            font-size: 0.9rem;
+        }
+
+        .overall-progress {
+            background: var(--gray-50);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .overall-progress .progress-bar-container {
+            height: 12px;
+            margin: 0.75rem 0;
+        }
+
+        .overall-progress .progress-bar {
+            height: 100%;
+        }
+
+        .section-progress {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem 0;
+        }
+
+        .section-progress .label {
+            font-size: 0.875rem;
+            color: var(--gray-600);
+        }
+
+        .section-progress .value {
+            font-size: 0.875rem;
+            font-weight: 600;
+        }
+
+        .action-row {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .empty-section-notice {
+            background: var(--gray-50);
+            border: 2px dashed var(--gray-300);
+            border-radius: 8px;
+            padding: 1.5rem;
+            text-align: center;
+            color: var(--gray-500);
+            font-size: 0.9rem;
+            margin: 1rem 0;
+        }
+
+        .add-req-form {
+            background: var(--gray-50);
+            border: 1px solid var(--gray-200);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-top: 1rem;
+        }
+
+        .add-req-form .form-row {
+            margin-bottom: 0.75rem;
+        }
+
+        .add-req-form .form-row:last-child {
+            margin-bottom: 0;
+        }
+    </style>
+</head>
+<body>
+    <div id="app-container">
+        <div class="header" style="display:flex; justify-content:space-between; align-items:center;">
+            <div style="display:flex; align-items:center; gap:1rem;">
+                <img id="user-group-logo" src="/logo.png" style="width:50px; height:50px; border-radius:50%; object-fit:cover; border:2px solid rgba(255,255,255,0.5); display:none;">
+                <div>
+                <h1>📋 Gestión de Requisitos - Liderazgo JA</h1>
+                <p id="welcome-msg">Cargando...</p>
+                </div>
+            </div>
+            <button class="btn btn-outline btn-sm" onclick="handleLogout()" style="background:rgba(255,255,255,0.1); color:white; border-color:rgba(255,255,255,0.3);">
+                🚪 Cerrar Sesión
+            </button>
+        </div>
+
+        <div class="nav-tabs no-print">
+        <button class="nav-tab active" onclick="switchTab('dashboard')">📊 Dashboard</button>
+        <button class="nav-tab" onclick="switchTab('participants')">👥 Participantes</button>
+        <button class="nav-tab" onclick="switchTab('requirements')">📝 Requisitos</button>
+        <button class="nav-tab" id="nav-groups" style="display:none" onclick="switchTab('groups')">🏢 Grupos</button>
+        <button class="nav-tab" id="nav-users" style="display:none" onclick="switchTab('users')">👤 Usuarios</button>
+        <button class="nav-tab" onclick="switchTab('reports')">📈 Reportes</button>
+        <button class="nav-tab" id="nav-settings" style="display:none" onclick="switchTab('settings')">⚙️ Configuración</button>
+    </div>
+
+        <div class="main-content">
+        <!-- Dashboard Tab -->
+        <div id="tab-dashboard" class="tab-content active">
+            <div class="stats-grid" id="stats-grid"></div>
+
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-title">📊 Progreso General por Sección</span>
+                </div>
+                <div id="section-progress-chart"></div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-title">🏆 Top Participantes</span>
+                </div>
+                <div id="top-participants"></div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-title">️ Requisitos Próximos a Vencer</span>
+                </div>
+                <div id="upcoming-deadlines"></div>
+            </div>
+        </div>
+
+        <!-- Participants Tab -->
+        <div id="tab-participants" class="tab-content">
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-title">👥 Gestión de Participantes</span>
+                    <button class="btn btn-primary" onclick="openAddParticipantModal()">➕ Agregar Participante</button>
+                </div>
+
+                <div class="search-box">
+                    <input type="text" id="search-participants" placeholder="Buscar participante..." oninput="renderParticipants()">
+                </div>
+
+                <div class="filter-bar">
+                    <select id="filter-status" onchange="renderParticipants()">
+                        <option value="all">Todos los estados</option>
+                        <option value="active">Activos</option>
+                        <option value="completed">Completados</option>
+                        <option value="inactive">Inactivos</option>
+                    </select>
+                </div>
+
+                <div class="participants-grid" id="participants-grid"></div>
+            </div>
+        </div>
+
+        <!-- Groups Tab -->
+        <div id="tab-groups" class="tab-content">
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-title">🏢 Gestión de Grupos</span>
+                    <button class="btn btn-primary" onclick="openAddGroupModal()">➕ Nuevo Grupo</button>
+                </div>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Logo</th>
+                                <th>Nombre del Grupo</th>
+                                <th>Participantes</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="groups-list"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Users Tab -->
+        <div id="tab-users" class="tab-content">
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-title">👤 Gestión de Usuarios y Asignación</span>
+                </div>
+                <p style="margin-bottom:1rem; font-size:0.9rem; color:var(--gray-500);">Asigne un grupo a los usuarios para que puedan iniciar sesión y gestionar sus participantes.</p>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Nombre</th>
+                                <th>Email</th>
+                                <th>Grupo Asignado</th>
+                                <th>Estado</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="users-list"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Requirements Tab -->
+        <div id="tab-requirements" class="tab-content">
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-title">📝 Todos los Requisitos del Programa</span>
+                    <div class="action-row">
+                        <button class="btn btn-outline btn-sm" onclick="exportRequirements()">📥 Exportar</button>
+                    </div>
+                </div>
+                <div id="requirements-list"></div>
+            </div>
+        </div>
+
+        <!-- Reports Tab -->
+        <div id="tab-reports" class="tab-content">
+            <div class="card no-print">
+                <div class="card-header">
+                    <span class="card-title">📈 Generación de Reportes</span>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Tipo de Reporte</label>
+                        <select id="report-type" class="form-control">
+                            <option value="general">Reporte General</option>
+                            <option value="participant">Reporte por Participante</option>
+                            <option value="section">Reporte por Sección</option>
+                            <option value="deadlines">Reporte de Fechas Límite</option>
+                            <option value="compliance">Reporte de Cumplimiento</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Participante (si aplica)</label>
+                        <select id="report-participant" class="form-control">
+                            <option value="">-- Seleccionar --</option>
+                        </select>
+                    </div>
+                    <div class="form-group" style="display:flex;align-items:flex-end;">
+                        <button class="btn btn-primary" onclick="generateReport()"> Generar Reporte</button>
+                    </div>
+                </div>
+                <div class="action-row" style="margin-top:1rem;">
+                    <button class="btn btn-outline btn-sm" onclick="printReport()">🖨️ Imprimir</button>
+                    <button class="btn btn-outline btn-sm" onclick="exportReportCSV()">📄 Exportar CSV</button>
+                    <button class="btn btn-outline btn-sm" onclick="exportReportJSON()">💾 Exportar JSON</button>
+                </div>
+            </div>
+
+            <div id="report-output" class="report-container" style="display:none;"></div>
+        </div>
+
+        <!-- Settings Tab -->
+        <div id="tab-settings" class="tab-content">
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-title">⚙️ Configuración del Sistema</span>
+                </div>
+                <div class="form-group">
+                    <label>Nombre del Programa</label>
+                    <input type="text" id="program-name" class="form-control" value="Programa de Liderazgo Juvenil" onchange="saveSettings()">
+                </div>
+                <div class="form-group">
+                    <label>Organización / Iglesia</label>
+                    <input type="text" id="org-name" class="form-control" value="" placeholder="Nombre de la organización" onchange="saveSettings()">
+                </div>
+                <div class="form-group">
+                    <label>Año del Programa</label>
+                    <input type="text" id="program-year" class="form-control" value="2026" onchange="saveSettings()">
+                </div>
+
+                <hr style="margin: 1.5rem 0; border: none; border-top: 1px solid var(--gray-200);">
+
+                <div class="card-header">
+                    <span class="card-title">💾 Gestión de Datos</span>
+                </div>
+                <div class="action-row">
+                    <button class="btn btn-primary btn-sm" onclick="exportAllData()">📥 Exportar Todos los Datos</button>
+                    <button class="btn btn-outline btn-sm" onclick="document.getElementById('import-file').click()">📤 Importar Datos</button>
+                    <input type="file" id="import-file" accept=".json" style="display:none" onchange="importData(event)">
+                    <button class="btn btn-danger btn-sm" onclick="clearAllData()">🗑️ Borrar Todo</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Participant Detail View -->
+        <div id="tab-detail" class="tab-content">
+            <div class="no-print" style="margin-bottom:1rem;">
+                <button class="btn btn-outline" onclick="switchTab('participants')">← Volver a Participantes</button>
+            </div>
+            <div id="detail-content"></div>
+        </div>
+    </div>
+
+    <!-- Add Participant Modal -->
+    <div class="modal-overlay" id="modal-add-participant">
+        <div class="modal">
+            <div class="modal-header">
+                <h2>➕ Agregar Nuevo Participante</h2>
+                <button class="modal-close" onclick="closeModal('modal-add-participant')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Grupo *</label>
+                        <select id="p-group" class="form-control"></select>
+                    </div>
+                    <div class="form-group">
+                        <label>Nombre Completo *</label>
+                        <input type="text" id="p-name" class="form-control" placeholder="Nombre y apellidos">
+                    </div>
+                    <div class="form-group">
+                        <label>Edad</label>
+                        <input type="number" id="p-age" class="form-control" placeholder="Edad" min="10" max="99">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Teléfono</label>
+                        <input type="tel" id="p-phone" class="form-control" placeholder="Teléfono">
+                    </div>
+                    <div class="form-group">
+                        <label>Email</label>
+                        <input type="email" id="p-email" class="form-control" placeholder="correo@ejemplo.com">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Iglesia / Congregación</label>
+                        <input type="text" id="p-church" class="form-control" placeholder="Nombre de la iglesia">
+                    </div>
+                    <div class="form-group">
+                        <label>Fecha de Inscripción</label>
+                        <input type="date" id="p-enrollment" class="form-control">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Observaciones</label>
+                    <textarea id="p-notes" class="form-control" rows="3" placeholder="Notas adicionales..."></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="closeModal('modal-add-participant')">Cancelar</button>
+                <button class="btn btn-primary" onclick="saveParticipant()">💾 Guardar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Requirement Modal -->
+    <div class="modal-overlay" id="modal-add-requirement">
+        <div class="modal">
+            <div class="modal-header">
+                <h2>➕ Agregar Nuevo Requisito</h2>
+                <button class="modal-close" onclick="closeModal('modal-add-requirement')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Sección *</label>
+                    <select id="req-section" class="form-control">
+                        <option value="Encuentros presenciales">Encuentros presenciales</option>
+                        <option value="Encuentros virtuales">Encuentros virtuales</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Nombre del Requisito *</label>
+                    <input type="text" id="req-name" class="form-control" placeholder="Descripción del requisito">
+                </div>
+                <div class="form-group">
+                    <label>Fecha Límite *</label>
+                    <input type="date" id="req-deadline" class="form-control">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="closeModal('modal-add-requirement')">Cancelar</button>
+                <button class="btn btn-primary" onclick="saveRequirement()">💾 Guardar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Group Modal -->
+    <div class="modal-overlay" id="modal-add-group">
+        <div class="modal">
+            <div class="modal-header">
+                <h2>🏢 Crear Nuevo Grupo</h2>
+                <button class="modal-close" onclick="closeModal('modal-add-group')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Nombre del Grupo *</label>
+                    <input type="text" id="g-name" class="form-control" placeholder="Ej: Club de Guías Mayores Orión">
+                </div>
+                <div class="form-group">
+                    <label>Logo del Grupo *</label>
+                    <input type="file" id="g-logo-file" class="form-control" accept="image/*" onchange="previewLogo(event)">
+                    <p style="font-size:0.75rem; color:var(--gray-500); margin-top:0.25rem;">Suba una imagen para el logo del grupo.</p>
+                    <div id="g-logo-preview" style="margin-top: 1rem; display: none; text-align: center;">
+                        <img id="g-preview-img" src="" style="width: 80px; height: 80px; object-fit: cover; border-radius: 8px; border: 1px solid var(--gray-300);">
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="closeModal('modal-add-group')">Cancelar</button>
+                <button class="btn btn-primary" onclick="saveGroup()">💾 Crear Grupo</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div class="toast-container" id="toast-container"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        const supabaseUrl = 'https://uokktpylaeeusezdwqqb.supabase.co';
+        const supabaseKey = 'sb_publishable_NI8guSM1ualSIrpLZ9sz0A_EggPNZBw';
+        const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
+
+        // ==================== DATA STRUCTURES ====================
+        const REQUIREMENTS_DATA = {
+            "Comprobante de pago": {
+                items: [
+                    { id: "pago", name: "Comprobante de pago", deadline: "2026-06-30" }
+                ]
+            },
+            "I. Pre-requisitos": {
+                items: [
+                    { id: "pre1", name: "1. Ser miembro bautizado en regla", deadline: "2026-07-06" },
+                    { id: "pre2", name: "2. Carta de recomendación de Junta de Iglesia", deadline: "2026-07-06" },
+                    { id: "pre3", name: "3. Tener 16 años o más", deadline: "2026-07-06" },
+                    { id: "pre4", name: "4. Ser miembro activo de sociedad de jóvenes", deadline: "2026-07-06" },
+                    { id: "pre5_1", name: "5.1 Seminario #1 \"El líder juvenil como un líder...\"", deadline: "2026-05-12" },
+                    { id: "pre5_2", name: "5.2 Seminario #2 \"La comprensión de la historia, fil...\"", deadline: "2026-05-12" },
+                    { id: "pre5_3", name: "5.3 Seminario #3 \"El desarrollo de un modelo con...\"", deadline: "2026-05-12" },
+                    { id: "pre5_4", name: "5.4 Seminario #4 \"Consejería, pertenencia y empo...\"", deadline: "2026-05-12" },
+                    { id: "pre5_5", name: "5.5 Seminario #5 \"Evangelismo comprensivo\"", deadline: "2026-05-12" },
+                    { id: "pre5_6", name: "5.6 Seminario #6 \"La necesidad de un Ministerio J...\"", deadline: "2026-05-12" },
+                    { id: "pre5_7", name: "5.7 Seminario #7 \"Ministerio Juvenil creativo\"", deadline: "2026-05-12" },
+                    { id: "pre5_8", name: "5.8 Seminario #8 \"Maximizando las oportunidades...\"", deadline: "2026-05-12" },
+                    { id: "pre5_9", name: "5.9 Seminario #9 \"Los dones espirituales y el servi...\"", deadline: "2026-05-12" },
+                    { id: "pre5_10", name: "5.10 Seminario #10 \"Entendiendo a la juventud\"", deadline: "2026-05-12" }
+                ]
+            },
+            "II. Usted y Dios": {
+                items: [
+                    { id: "ud1", name: "1. Dones espirituales. Realizar estas dos actividades...", deadline: "2026-07-15" },
+                    { id: "ud2", name: "2. El Camino a Cristo", deadline: "2026-08-15" },
+                    { id: "ud3", name: "3. Plan de lectura de los cuatro evangelios", deadline: "2027-01-30" },
+                    { id: "ud4", name: "4. El Deseado de Todas las Gentes", deadline: "2026-10-30" },
+                    { id: "ud5", name: "5. Lectura de la Guía práctica para Directivos JA", deadline: "2026-09-15" },
+                    { id: "ud6", name: "6. Las 28 Creencias Fundamentales", deadline: "2026-11-30" }
+                ]
+            },
+            "III. Usted y Usted": {
+                items: [
+                    { id: "uu1", name: "1. Hacer lo siguiente Colosenses 1:16:", deadline: "2026-07-30" },
+                    { id: "uu2", name: "2. Tomar/Enseñar las siguientes especialidades:", deadline: "2027-03-01" },
+                    { id: "uu3", name: "3. Leer o escuchar el libro \"Mensajes para los jóve...\"", deadline: "2026-09-30" },
+                    { id: "uu4", name: "4. Demostrar sus habilidades de liderazgo al hace...", deadline: "2026-11-15" },
+                    { id: "uu5", name: "5. Participar en un plan de salud física personal", deadline: "2026-11-30" }
+                ]
+            },
+            "IV. Usted y los jóvenes": {
+                items: [
+                    { id: "uj1", name: "1. Hacer tres encuentros de \"tarde o noche joven\"...", deadline: "2027-02-28" },
+                    { id: "uj2", name: "2. Análisis de temperamento estándar", deadline: "2026-10-15" },
+                    { id: "uj3", name: "3. Asistir a un entrenamiento en Planificación de S...", deadline: "2026-09-28" }
+                ]
+            },
+            "V. Usted y la iglesia": {
+                items: [
+                    { id: "ui1", name: "1. Conocer y comprender los 10 valores ICOR", deadline: "2026-08-30" },
+                    { id: "ui2", name: "2. Mejorar su conocimiento del patrimonio Iglesia", deadline: "2027-01-30" },
+                    { id: "ui3", name: "3. Hacer dos de las siguientes:", deadline: "2026-12-15" },
+                    { id: "ui4", name: "4. Hacer una de las siguientes:", deadline: "2027-01-15" }
+                ]
+            },
+            "VI. Usted y la comunidad": {
+                items: [
+                    { id: "uc1", name: "Necesidades de su comunidad.", deadline: "2027-01-30" },
+                    { id: "uc2", name: "3. Elegir dos de las siguientes", deadline: "2027-02-15" }
+                ]
+            },
+            "VII. Carpeta (documentación)": {
+                items: [
+                    { id: "carpeta", name: "Presentación de carpeta física", deadline: "2027-03-07" }
+                ]
+            },
+            "Especialidades": {
+                items: [
+                    { id: "esp1", name: "Curso de primeros Auxilios", deadline: "2027-02-28" }
+                ]
+            },
+            "Encuentros presenciales": {
+                items: []
+            },
+            "Encuentros virtuales": {
+                items: []
+            }
+        };
+
+        // ==================== STATE ====================
+        let state = {
+            participants: [],
+            groups: [],
+            currentGroupLogo: 'img/logo.png',
+            settings: {
+                programName: "Programa de Liderazgo Juvenil",
+                orgName: "",
+                programYear: "2026"
+            },
+            currentDetailParticipant: null,
+            currentUser: null,
+            registeredUsers: []
+        };
+
+        // ==================== INITIALIZATION ====================
+        async function init() {
+            await checkAuth();
+        }
+
+        async function checkAuth() {
+            const { data: { session } } = await supabaseClient.auth.getSession();
+            if (session) {
+                const { data: profile, error } = await supabaseClient.from('profiles').select('*').eq('id', session.user.id).single();
+                if (error) {
+                    console.error("Error crítico cargando perfil:", error);
+                    return handleLogout();
+                }
+                state.currentUser = { id: session.user.id, name: profile.full_name, role: (profile.role || '').toLowerCase(), groupId: profile.group_id };
+                await loadFromSupabase();
+                showApp();
+            } else {
+                window.location.href = 'login.html';
+            }
+        }
+
+        function showApp() {
+            document.getElementById('app-container').style.display = 'block';
+            document.getElementById('welcome-msg').textContent = `Sesión iniciada como: ${state.currentUser.name}`;
+            
+            // Mostrar logo del grupo en el header si aplica
+            if (state.currentUser.groupId) {
+                const group = state.groups.find(g => g.id === state.currentUser.groupId);
+                if (group) {
+                    const logoImg = document.getElementById('user-group-logo');
+                    logoImg.src = group.logo;
+                    logoImg.style.display = 'block';
+                }
+            }
+            
+            // Mostrar pestañas administrativas solo si es admin
+            if (state.currentUser.role === 'admin') {
+                document.getElementById('nav-groups').style.display = 'block';
+                document.getElementById('nav-users').style.display = 'block';
+                document.getElementById('nav-settings').style.display = 'block';
+            }
+
+            renderDashboard();
+            renderParticipants();
+            renderRequirements();
+            populateReportParticipants();
+            if (state.currentUser.role === 'admin') {
+                renderGroups(); renderUsers();
+            }
+        }
+
+        async function handleLogout() {
+            await supabaseClient.auth.signOut();
+            localStorage.removeItem('liderazgo_session');
+            window.location.href = 'login.html';
+        }
+
+        async function loadFromSupabase() {
+            try {
+                const { data: groups } = await supabaseClient.from('groups').select('*');
+                state.groups = (groups || []).map(g => ({ ...g, logo: g.logo_url }));
+
+                // Cargar Secciones y Requisitos desde la base de datos
+                const { data: sections } = await supabaseClient.from('requirement_sections').select('*, requirements(*)').order('order_index');
+                if (sections) {
+                    sections.forEach(s => {
+                        if (REQUIREMENTS_DATA[s.name]) {
+                            REQUIREMENTS_DATA[s.name].items = s.requirements || [];
+                        }
+                    });
+                }
+
+                let query = supabaseClient.from('participants').select('*, completions(*)');
+                if (state.currentUser.role !== 'admin' && state.currentUser.groupId) {
+                    query = query.eq('group_id', state.currentUser.groupId);
+                }
+                const { data: participants, error: pError } = await query;
+                if (pError) throw pError;
+                
+                state.participants = (participants || []).map(p => ({
+                    ...p,
+                    groupId: p.group_id,
+                    completions: (p.completions || []).reduce((acc, c) => {
+                        acc[c.requirement_id] = { date: c.completion_date };
+                        return acc;
+                    }, {})
+                }));
+
+                const { data: settings } = await supabaseClient.from('settings').select('*').single();
+                if (settings) {
+                    state.settings = { 
+                        programName: settings.program_name, 
+                        orgName: settings.org_name, 
+                        programYear: settings.program_year 
+                    };
+                    document.getElementById('program-name').value = state.settings.programName;
+                    document.getElementById('org-name').value = state.settings.orgName || '';
+                    document.getElementById('program-year').value = state.settings.programYear || '2026';
+                }
+
+                if (state.currentUser.role === 'admin') {
+                    const { data: profiles } = await supabaseClient.from('profiles').select('*');
+                    state.registeredUsers = (profiles || []).map(u => ({
+                        id: u.id, name: u.full_name, email: u.email, groupId: u.group_id, role: u.role
+                    }));
+                }
+            } catch (err) {
+                console.error("Error de carga:", err.message);
+                showToast("Error cargando datos de la base de datos", "error");
+            }
+        }
+
+        // ==================== TAB NAVIGATION ====================
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+
+            const tab = document.getElementById('tab-' + tabName);
+            if (tab) tab.classList.add('active');
+
+            document.querySelectorAll('.nav-tab').forEach(t => {
+                if ((tabName === 'dashboard' && t.textContent.includes('Dashboard')) ||
+                    (tabName === 'participants' && t.textContent.includes('Participantes')) ||
+                    (tabName === 'requirements' && t.textContent.includes('Requisitos')) ||
+                    (tabName === 'groups' && t.textContent.includes('Grupos')) ||
+                    (tabName === 'users' && t.textContent.includes('Usuarios')) ||
+                    (tabName === 'reports' && t.textContent.includes('Reportes')) ||
+                    (tabName === 'settings' && t.textContent.includes('Configuración'))) {
+                    t.classList.add('active');
+                }
+            });
+
+            if (tabName === 'dashboard') renderDashboard();
+            if (tabName === 'participants') renderParticipants();
+            if (tabName === 'requirements') renderRequirements();
+            if (tabName === 'groups') renderGroups();
+            if (tabName === 'users') renderUsers();
+        }
+
+        function getFilteredParticipants() {
+            if (state.currentUser && state.currentUser.role === 'admin') {
+                return state.participants;
+            }
+            return state.participants.filter(p => p.groupId === state.currentUser.groupId);
+        }
+
+        // ==================== DASHBOARD ====================
+        function renderDashboard() {
+            const filteredParticipants = getFilteredParticipants();
+            const totalParticipants = filteredParticipants.length;
+            const totalRequirements = getAllRequirements().length;
+            let totalCompleted = 0;
+            let totalOverdue = 0;
+
+            filteredParticipants.forEach(p => {
+                getAllRequirements().forEach(req => {
+                    if (p.completions && p.completions[req.id]) {
+                        totalCompleted++;
+                    } else if (new Date(req.deadline) < new Date()) {
+                        totalOverdue++;
+                    }
+                });
+            });
+
+            const avgProgress = totalParticipants > 0 ?
+                Math.round((totalCompleted / (totalParticipants * totalRequirements)) * 100) : 0;
+
+            document.getElementById('stats-grid').innerHTML = `
+                <div class="stat-card">
+                    <div class="stat-value">${totalParticipants}</div>
+                    <div class="stat-label">Participantes Inscritos</div>
+                </div>
+                <div class="stat-card success">
+                    <div class="stat-value">${totalCompleted}</div>
+                    <div class="stat-label">Requisitos Completados</div>
+                </div>
+                <div class="stat-card warning">
+                    <div class="stat-value">${avgProgress}%</div>
+                    <div class="stat-label">Progreso Promedio</div>
+                </div>
+                <div class="stat-card danger">
+                    <div class="stat-value">${totalOverdue}</div>
+                    <div class="stat-label">Requisitos Vencidos</div>
+                </div>
+            `;
+
+            let sectionHTML = '';
+            Object.entries(REQUIREMENTS_DATA).forEach(([sectionName, section]) => {
+                if (section.items.length === 0) return;
+                let completed = 0;
+                let total = section.items.length * totalParticipants;
+                filteredParticipants.forEach(p => {
+                    section.items.forEach(req => {
+                        if (p.completions && p.completions[req.id]) completed++;
+                    });
+                });
+                const pct = total > 0 ? Math.round((completed / total) * 100) : 0;
+                const barClass = pct >= 80 ? 'success' : pct >= 50 ? 'warning' : 'danger';
+                sectionHTML += `
+                    <div class="section-progress">
+                        <span class="label">${sectionName}</span>
+                        <div style="flex:1;margin:0 1rem;">
+                            <div class="progress-bar-container">
+                                <div class="progress-bar ${barClass}" style="width:${pct}%"></div>
+                            </div>
+                        </div>
+                        <span class="value">${pct}% (${completed}/${total})</span>
+                    </div>
+                `;
+            });
+            document.getElementById('section-progress-chart').innerHTML = sectionHTML || '<p class="empty-state">Sin datos</p>';
+
+            let topHTML = '<table><thead><tr><th>#</th><th>Participante</th><th>Progreso</th><th>Completados</th></tr></thead><tbody>';
+            const sorted = [...filteredParticipants].map(p => {
+                const total = getAllRequirements().length;
+                const completed = getAllRequirements().filter(r => p.completions && p.completions[r.id]).length;
+                return { ...p, progress: total > 0 ? Math.round((completed / total) * 100) : 0, completed };
+            }).sort((a, b) => b.progress - a.progress).slice(0, 5);
+
+            sorted.forEach((p, i) => {
+                const barClass = p.progress >= 80 ? 'success' : p.progress >= 50 ? 'warning' : 'danger';
+                topHTML += `<tr>
+                    <td>${i + 1}</td>
+                    <td><strong>${p.name}</strong></td>
+                    <td>
+                        <div class="progress-bar-container" style="width:120px;display:inline-block;vertical-align:middle;">
+                            <div class="progress-bar ${barClass}" style="width:${p.progress}%"></div>
+                        </div>
+                        <span class="progress-text" style="margin-left:0.5rem;">${p.progress}%</span>
+                    </td>
+                    <td><span class="badge badge-info">${p.completed}/${getAllRequirements().length}</span></td>
+                </tr>`;
+            });
+            topHTML += '</tbody></table>';
+            document.getElementById('top-participants').innerHTML = sorted.length ? topHTML : '<p class="empty-state">Agregue participantes para ver el ranking</p>';
+
+            let upcomingHTML = '<table><thead><tr><th>Requisito</th><th>Fecha Límite</th><th>Días Restantes</th><th>Pendientes</th></tr></thead><tbody>';
+            const today = new Date();
+            const upcoming = getAllRequirements()
+                .filter(r => {
+                    const diff = Math.ceil((new Date(r.deadline) - today) / (1000 * 60 * 60 * 24));
+                    return diff >= 0 && diff <= 30;
+                })
+                .sort((a, b) => new Date(a.deadline) - new Date(b.deadline));
+
+            upcoming.forEach(req => {
+                const daysLeft = Math.ceil((new Date(req.deadline) - today) / (1000 * 60 * 60 * 24));
+                const pending = filteredParticipants.filter(p => !p.completions || !p.completions[req.id]).length;
+                const badgeClass = daysLeft <= 7 ? 'badge-danger' : daysLeft <= 14 ? 'badge-warning' : 'badge-info';
+                upcomingHTML += `<tr>
+                    <td>${req.name}</td>
+                    <td>${formatDate(req.deadline)}</td>
+                    <td><span class="badge ${badgeClass}">${daysLeft} días</span></td>
+                    <td>${pending} participante(s)</td>
+                </tr>`;
+            });
+            upcomingHTML += '</tbody></table>';
+            document.getElementById('upcoming-deadlines').innerHTML = upcoming.length ? upcomingHTML : '<p class="empty-state">No hay fechas límite próximas</p>';
+        }
+
+        // ==================== PARTICIPANTS ====================
+        function renderParticipants() {
+            const search = document.getElementById('search-participants').value.toLowerCase();
+            const filterStatus = document.getElementById('filter-status').value;
+            const filteredList = getFilteredParticipants();
+
+            let filtered = filteredList.filter(p => {
+                const matchSearch = p.name.toLowerCase().includes(search) ||
+                    (p.church && p.church.toLowerCase().includes(search));
+                let matchStatus = true;
+                if (filterStatus === 'active') {
+                    const total = getAllRequirements().length;
+                    const completed = getAllRequirements().filter(r => p.completions && p.completions[r.id]).length;
+                    matchStatus = completed > 0 && completed < total;
+                } else if (filterStatus === 'completed') {
+                    const total = getAllRequirements().length;
+                    const completed = getAllRequirements().filter(r => p.completions && p.completions[r.id]).length;
+                    matchStatus = completed === total;
+                } else if (filterStatus === 'inactive') {
+                    const total = getAllRequirements().length;
+                    const completed = getAllRequirements().filter(r => p.completions && p.completions[r.id]).length;
+                    matchStatus = completed === 0;
+                }
+                return matchSearch && matchStatus;
+            });
+
+            if (filtered.length === 0) {
+                document.getElementById('participants-grid').innerHTML = `
+                    <div class="empty-state" style="grid-column:1/-1;">
+                        <div class="icon">👥</div>
+                        <p>No hay participantes. Haga clic en "Agregar Participante" para comenzar.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            let html = '';
+            filtered.forEach(p => {
+                const total = getAllRequirements().length;
+                const completed = getAllRequirements().filter(r => p.completions && p.completions[r.id]).length;
+                const pct = total > 0 ? Math.round((completed / total) * 100) : 0;
+                const barClass = pct >= 80 ? 'success' : pct >= 50 ? 'warning' : 'danger';
+                const statusBadge = pct === 100 ? '<span class="badge badge-success">Completado</span>' :
+                    pct > 0 ? '<span class="badge badge-warning">En Progreso</span>' :
+                    '<span class="badge badge-danger">Sin Iniciar</span>';
+
+                const group = state.groups.find(g => g.id === p.groupId);
+                const logoHtml = group ? `<img src="${group.logo}" class="group-logo-preview" style="width:24px;height:24px;vertical-align:middle;margin-right:5px;" onerror="this.src='img/logo.png'">` : '';
+
+                html += `
+                    <div class="participant-card" onclick="openParticipantDetail('${p.id}')">
+                        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:0.75rem;">
+                            <div>
+                                <div class="name">${logoHtml}${p.name}</div>
+                                <div class="info">${p.church || 'Sin iglesia'} ${p.age ? '• ' + p.age + ' años' : ''}</div>
+                            </div>
+                            ${statusBadge}
+                        </div>
+                        <div class="progress-bar-container">
+                            <div class="progress-bar ${barClass}" style="width:${pct}%"></div>
+                        </div>
+                        <div style="display:flex;justify-content:space-between;margin-top:0.5rem;">
+                            <span class="progress-text">${completed} de ${total} requisitos</span>
+                            <span class="progress-text" style="font-weight:600;">${pct}%</span>
+                        </div>
+                        <div style="margin-top:0.75rem;display:flex;gap:0.5rem;" class="no-print">
+                            <button class="btn btn-outline btn-sm" onclick="event.stopPropagation();openParticipantDetail('${p.id}')">📋 Ver Detalle</button>
+                            <button class="btn btn-danger btn-sm" onclick="event.stopPropagation();deleteParticipant('${p.id}')">🗑️</button>
+                        </div>
+                    </div>
+                `;
+            });
+
+            document.getElementById('participants-grid').innerHTML = html;
+        }
+
+        function openAddParticipantModal() {
+            const groupSelect = document.getElementById('p-group');
+            groupSelect.innerHTML = '';
+            if (state.currentUser.role === 'admin') {
+                state.groups.forEach(g => {
+                    groupSelect.innerHTML += `<option value="${g.id}">${g.name}</option>`;
+                });
+            } else {
+                const userGroup = state.groups.find(g => g.id === state.currentUser.groupId);
+                groupSelect.innerHTML = `<option value="${userGroup.id}">${userGroup.name}</option>`;
+                groupSelect.disabled = true;
+            }
+
+            document.getElementById('p-name').value = '';
+            document.getElementById('p-age').value = '';
+            document.getElementById('p-phone').value = '';
+            document.getElementById('p-email').value = '';
+            document.getElementById('p-church').value = '';
+            document.getElementById('p-enrollment').value = new Date().toISOString().split('T')[0];
+            document.getElementById('p-notes').value = '';
+            document.getElementById('modal-add-participant').classList.add('active');
+        }
+
+        function closeModal(id) {
+            document.getElementById(id).classList.remove('active');
+        }
+
+        async function saveParticipant() {
+            const name = document.getElementById('p-name').value.trim();
+            if (!name) {
+                showToast('El nombre es obligatorio', 'error');
+                return;
+            }
+
+            const pData = {
+                name: name,
+                group_id: document.getElementById('p-group').value,
+                age: parseInt(document.getElementById('p-age').value) || null,
+                phone: document.getElementById('p-phone').value,
+                email: document.getElementById('p-email').value,
+                church: document.getElementById('p-church').value,
+                enrollment_date: document.getElementById('p-enrollment').value,
+                notes: document.getElementById('p-notes').value,
+            };
+
+            const { data, error } = await supabaseClient.from('participants').insert([pData]).select();
+            if (error) {
+                if (error.code === '23505') {
+                    return showToast('Error: Ya existe un participante registrado con este nombre y apellidos.', 'error');
+                }
+                return showToast('Error al guardar: ' + error.message, 'error');
+            }
+
+            const newP = {
+                ...data[0],
+                groupId: data[0].group_id,
+                completions: {}
+            };
+
+            state.participants.push(newP);
+            closeModal('modal-add-participant');
+            renderParticipants();
+            populateReportParticipants();
+            showToast(`Participante "${name}" agregado exitosamente`);
+        }
+
+        async function deleteParticipant(id) {
+            if (!confirm('¿Está seguro de eliminar este participante? Esta acción no se puede deshacer.')) return;
+            const { error } = await supabaseClient.from('participants').delete().eq('id', id);
+            if (error) return showToast('Error al eliminar: ' + error.message, 'error');
+
+            state.participants = state.participants.filter(p => p.id !== id);
+            renderParticipants();
+            populateReportParticipants();
+            showToast('Participante eliminado');
+        }
+
+        // ==================== PARTICIPANT DETAIL ====================
+        function openParticipantDetail(id) {
+            const participant = state.participants.find(p => p.id === id);
+            if (!participant) return;
+
+            state.currentDetailParticipant = id;
+            switchTab('detail');
+            renderParticipantDetail(participant);
+        }
+
+        function renderParticipantDetail(participant) {
+            const total = getAllRequirements().length;
+            const completed = getAllRequirements().filter(r => participant.completions && participant.completions[r.id]).length;
+            const pct = total > 0 ? Math.round((completed / total) * 100) : 0;
+            const barClass = pct >= 80 ? 'success' : pct >= 50 ? 'warning' : 'danger';
+
+            let html = `
+                <div class="card">
+                    <div class="detail-header">
+                        <div class="participant-info">
+                            <h2>${participant.name}</h2>
+                            <p>${participant.church || 'Sin iglesia'} ${participant.age ? '• ' + participant.age + ' años' : ''} ${participant.phone ? '• 📞 ' + participant.phone : ''} ${participant.email ? '• 📧 ' + participant.email : ''}</p>
+                            <p style="margin-top:0.25rem;">Inscrito: ${participant.enrollmentDate ? formatDate(participant.enrollmentDate) : 'N/A'}</p>
+                        </div>
+                        <div class="action-row no-print">
+                            <button class="btn btn-outline btn-sm" onclick="editParticipant('${participant.id}')">️ Editar</button>
+                            <button class="btn btn-danger btn-sm" onclick="deleteParticipant('${participant.id}');switchTab('participants');">️ Eliminar</button>
+                        </div>
+                    </div>
+
+                    <div class="overall-progress">
+                        <div style="display:flex;justify-content:space-between;align-items:center;">
+                            <span style="font-weight:600;">Progreso General</span>
+                            <span style="font-size:1.5rem;font-weight:700;">${pct}%</span>
+                        </div>
+                        <div class="progress-bar-container">
+                            <div class="progress-bar ${barClass}" style="width:${pct}%"></div>
+                        </div>
+                        <div style="display:flex;justify-content:space-between;font-size:0.85rem;color:var(--gray-500);">
+                            <span>${completed} de ${total} requisitos completados</span>
+                            <span>${total - completed} pendientes</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            Object.entries(REQUIREMENTS_DATA).forEach(([sectionName, section]) => {
+                if (section.items.length === 0 && !['Encuentros presenciales', 'Encuentros virtuales'].includes(sectionName)) return;
+
+                const sectionCompleted = section.items.filter(r => participant.completions && participant.completions[r.id]).length;
+                const sectionTotal = section.items.length;
+                const sectionPct = sectionTotal > 0 ? Math.round((sectionCompleted / sectionTotal) * 100) : 0;
+                const sectionBarClass = sectionPct >= 80 ? 'success' : sectionPct >= 50 ? 'warning' : 'danger';
+
+                const isDynamicSection = ['Encuentros presenciales', 'Encuentros virtuales'].includes(sectionName);
+
+                html += `
+                    <div class="section-accordion">
+                        <div class="section-header open" onclick="toggleSection(this)">
+                            <div>
+                                <span>${sectionName}</span>
+                                ${sectionTotal > 0 ? `<span class="badge badge-info" style="margin-left:0.5rem;">${sectionCompleted}/${sectionTotal}</span>` : ''}
+                            </div>
+                            <div style="display:flex;align-items:center;gap:1rem;">
+                                ${sectionTotal > 0 ? `
+                                <div class="progress-bar-container" style="width:100px;height:6px;">
+                                    <div class="progress-bar ${sectionBarClass}" style="width:${sectionPct}%"></div>
+                                </div>
+                                ` : ''}
+                                ${isDynamicSection ? `<button class="btn btn-primary btn-sm no-print" onclick="event.stopPropagation();openAddRequirementModal('${sectionName}')"> Agregar</button>` : ''}
+                                <span class="arrow">▼</span>
+                            </div>
+                        </div>
+                        <div class="section-body open">
+                `;
+
+                if (section.items.length === 0 && isDynamicSection) {
+                    html += `
+                        <div class="empty-section-notice">
+                             Los estudiantes verán este tema una vez que se le agregue trabajo
+                        </div>
+                    `;
+                } else {
+                    section.items.forEach(req => {
+                        const isCompleted = participant.completions && participant.completions[req.id];
+                        const completionDate = isCompleted ? participant.completions[req.id].date : '';
+                        const isOverdue = !isCompleted && new Date(req.deadline) < new Date();
+
+                        html += `
+                            <div class="req-row" style="${isOverdue ? 'background:#fef2f2;' : ''}">
+                                <div class="req-name">
+                                    ${req.name}
+                                    ${isOverdue ? '<span class="badge badge-danger" style="margin-left:0.5rem;">Vencido</span>' : ''}
+                                    ${isCompleted ? '<span class="badge badge-success" style="margin-left:0.5rem;">✓ Completado</span>' : ''}
+                                </div>
+                                <div class="req-deadline">
+                                    Límite: <input type="date" class="date-input" value="${req.deadline}" onchange="updateGlobalRequirementDeadline('${req.id}', this.value)">
+                                </div>
+                                <div class="req-status">
+                                    <input type="checkbox" class="checkbox-custom"
+                                        ${isCompleted ? 'checked' : ''}
+                                        onchange="toggleCompletion('${participant.id}', '${req.id}', this.checked)">
+                                </div>
+                                <div>
+                                    <input type="date" class="date-input"
+                                        value="${completionDate}"
+                                        onchange="updateCompletionDate('${participant.id}', '${req.id}', this.value)"
+                                        ${!isCompleted ? 'disabled' : ''}>
+                                </div>
+                                <div>
+                                    <button class="btn btn-outline btn-sm no-print" onclick="addObservation('${participant.id}', '${req.id}')">📝</button>
+                                </div>
+                            </div>
+                        `;
+                    });
+                }
+
+                html += `
+                        </div>
+                    </div>
+                `;
+            });
+
+            if (participant.observations && Object.keys(participant.observations).length > 0) {
+                html += `<div class="card" style="margin-top:1.5rem;">
+                    <div class="card-header"><span class="card-title">📝 Observaciones</span></div>
+                    <table><thead><tr><th>Requisito</th><th>Observación</th><th>Fecha</th></tr></thead><tbody>`;
+                Object.entries(participant.observations).forEach(([reqId, obs]) => {
+                    const req = getAllRequirements().find(r => r.id === reqId);
+                    html += `<tr><td>${req ? req.name : reqId}</td><td>${obs.text}</td><td>${formatDate(obs.date)}</td></tr>`;
+                });
+                html += `</tbody></table></div>`;
+            }
+
+            document.getElementById('detail-content').innerHTML = html;
+        }
+
+        function toggleSection(header) {
+            header.classList.toggle('open');
+            const body = header.nextElementSibling;
+            body.classList.toggle('open');
+        }
+
+        async function toggleCompletion(participantId, reqId, checked) {
+            const participant = state.participants.find(p => p.id === participantId);
+            if (!participant) return;
+
+            if (checked) {
+                const compDate = new Date().toISOString().split('T')[0];
+                const { error } = await supabaseClient.from('completions').upsert({
+                    participant_id: participantId,
+                    requirement_id: reqId,
+                    completion_date: compDate
+                }, { onConflict: 'participant_id,requirement_id' });
+
+                if (error) return showToast('Error: ' + error.message, 'error');
+                if (!participant.completions) participant.completions = {};
+                participant.completions[reqId] = { date: compDate };
+            } else {
+                const { error } = await supabaseClient.from('completions')
+                    .delete().match({ participant_id: participantId, requirement_id: reqId });
+                
+                if (error) return showToast('Error: ' + error.message, 'error');
+                delete participant.completions[reqId];
+            }
+
+            renderParticipantDetail(participant);
+            showToast(checked ? 'Requisito marcado como completado ✓' : 'Requisito desmarcado');
+        }
+
+        async function updateCompletionDate(participantId, reqId, date) {
+            const participant = state.participants.find(p => p.id === participantId);
+            if (!participant || !participant.completions[reqId]) return;
+
+            const { error } = await supabaseClient.from('completions')
+                .update({ completion_date: date })
+                .match({ participant_id: participantId, requirement_id: reqId });
+
+            if (error) return showToast('Error al actualizar fecha: ' + error.message, 'error');
+            participant.completions[reqId].date = date;
+            showToast('Fecha actualizada');
+        }
+
+        function addObservation(participantId, reqId) {
+            const text = prompt('Ingrese una observación para este requisito:');
+            if (!text) return;
+
+            const participant = state.participants.find(p => p.id === participantId);
+            if (!participant) return;
+
+            if (!participant.observations) participant.observations = {};
+            participant.observations[reqId] = {
+                text: text,
+                date: new Date().toISOString().split('T')[0]
+            };
+
+            saveToStorage();
+            renderParticipantDetail(participant);
+            showToast('Observación agregada');
+        }
+
+        function editParticipant(id) {
+            const p = state.participants.find(part => part.id === id);
+            if (!p) return;
+
+            document.getElementById('p-name').value = p.name;
+            document.getElementById('p-age').value = p.age || '';
+            document.getElementById('p-phone').value = p.phone || '';
+            document.getElementById('p-email').value = p.email || '';
+            document.getElementById('p-church').value = p.church || '';
+            document.getElementById('p-enrollment').value = p.enrollmentDate || '';
+            document.getElementById('p-notes').value = p.notes || '';
+
+            document.getElementById('modal-add-participant').classList.add('active');
+
+            const originalSave = window.saveParticipant;
+            window.saveParticipant = async function() {
+                const name = document.getElementById('p-name').value.trim();
+                if (!name) { showToast('El nombre es obligatorio', 'error'); return; }
+
+                const updatedData = {
+                    name: name,
+                    age: parseInt(document.getElementById('p-age').value) || null,
+                    phone: document.getElementById('p-phone').value,
+                    email: document.getElementById('p-email').value,
+                    church: document.getElementById('p-church').value,
+                    enrollment_date: document.getElementById('p-enrollment').value,
+                    notes: document.getElementById('p-notes').value,
+                };
+
+                const { data, error } = await supabaseClient.from('participants').update(updatedData).eq('id', id).select();
+                if (error) {
+                    if (error.code === '23505') {
+                        return showToast('Error: Ya existe otro participante registrado con este nombre.', 'error');
+                    }
+                    return showToast('Error al actualizar: ' + error.message, 'error');
+                }
+
+                const idx = state.participants.findIndex(part => part.id === id);
+                state.participants[idx] = { ...state.participants[idx], ...data[0], groupId: data[0].group_id };
+                
+                closeModal('modal-add-participant');
+                renderParticipants();
+                populateReportParticipants();
+                renderParticipantDetail(state.participants[idx]);
+                showToast('Participante actualizado');
+                window.saveParticipant = originalSave;
+            };
+        }
+
+        // ==================== GROUPS & USERS MANAGEMENT ====================
+        function renderGroups() {
+            let html = '';
+            state.groups.forEach(g => {
+                const count = state.participants.filter(p => p.groupId === g.id).length;
+                html += `
+                    <tr>
+                        <td><img src="${g.logo}" style="width:40px;height:40px;border-radius:8px;object-fit:cover;" onerror="this.src='img/logo.png'"></td>
+                        <td><strong>${g.name}</strong></td>
+                        <td><span class="badge badge-info">${count} Participantes</span></td>
+                        <td><button class="btn btn-danger btn-sm" onclick="deleteGroup('${g.id}')">🗑️</button></td>
+                    </tr>
+                `;
+            });
+            document.getElementById('groups-list').innerHTML = html || '<tr><td colspan="4" style="text-align:center;padding:2rem;">No hay grupos creados</td></tr>';
+        }
+
+        function openAddGroupModal() {
+            document.getElementById('g-name').value = '';
+            document.getElementById('g-logo-file').value = '';
+            document.getElementById('g-logo-preview').style.display = 'none';
+            state.currentGroupLogo = 'img/logo.png';
+            document.getElementById('modal-add-group').classList.add('active');
+        }
+
+        function previewLogo(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    state.currentGroupLogo = e.target.result;
+                    document.getElementById('g-preview-img').src = state.currentGroupLogo;
+                    document.getElementById('g-logo-preview').style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        async function saveGroup() {
+            const name = document.getElementById('g-name').value.trim();
+            if (!name) return showToast('El nombre es obligatorio', 'error');
+
+            const { data, error } = await supabaseClient.from('groups').insert([{ 
+                name, 
+                logo_url: state.currentGroupLogo 
+            }]).select();
+
+            if (error) return showToast('Error al crear grupo: ' + error.message, 'error');
+
+            state.groups.push({ ...data[0], logo: data[0].logo_url });
+            closeModal('modal-add-group');
+            renderGroups();
+            renderUsers(); 
+            showToast('Grupo creado con éxito');
+        }
+
+        async function deleteGroup(id) {
+            if (!confirm('¿Borrar grupo? Los participantes quedarán huérfanos.')) return;
+            const { error } = await supabaseClient.from('groups').delete().eq('id', id);
+            if (error) return showToast('Error al eliminar grupo: ' + error.message, 'error');
+
+            state.groups = state.groups.filter(g => g.id !== id);
+            renderGroups();
+        }
+
+        function renderUsers() {
+            let html = '';
+            state.registeredUsers.forEach(u => {
+                const group = state.groups.find(g => g.id === u.groupId);
+                const isAssigned = !!u.groupId;
+                
+                let selectHtml = `<select class="form-control" onchange="assignGroupToUser('${u.id}', this.value)" style="width:auto;">
+                    <option value="">-- Sin Grupo --</option>`;
+                state.groups.forEach(g => {
+                    selectHtml += `<option value="${g.id}" ${u.groupId === g.id ? 'selected' : ''}>${g.name}</option>`;
+                });
+                selectHtml += `</select>`;
+
+                html += `
+                    <tr>
+                        <td>${u.name}</td>
+                        <td>${u.email}</td>
+                        <td>${selectHtml}</td>
+                        <td><span class="badge ${isAssigned ? 'badge-success' : 'badge-danger'}">${isAssigned ? 'Habilitado' : 'Sin Acceso'}</span></td>
+                        <td>-</td>
+                    </tr>
+                `;
+            });
+            document.getElementById('users-list').innerHTML = html || '<tr><td colspan="5" style="text-align:center;padding:2rem;">No hay usuarios registrados</td></tr>';
+        }
+
+        async function assignGroupToUser(userId, groupId) {
+            const { error } = await supabaseClient.from('profiles')
+                .update({ group_id: groupId || null })
+                .eq('id', userId);
+
+            if (error) return showToast('Error: ' + error.message, 'error');
+
+            const user = state.registeredUsers.find(u => u.id === userId);
+            if (user) user.groupId = groupId;
+            renderUsers();
+            showToast('Usuario actualizado');
+        }
+
+        // ==================== REQUIREMENTS MANAGEMENT ====================
+        function openAddRequirementModal(sectionName) {
+            document.getElementById('req-section').value = sectionName;
+            document.getElementById('req-name').value = '';
+            document.getElementById('req-deadline').value = '';
+            document.getElementById('modal-add-requirement').classList.add('active');
+        }
+
+        async function saveRequirement() {
+            const sectionName = document.getElementById('req-section').value;
+            const name = document.getElementById('req-name').value.trim();
+            const deadline = document.getElementById('req-deadline').value;
+
+            if (!name || !deadline) {
+                showToast('Complete todos los campos', 'error');
+                return;
+            }
+
+            // Obtener el ID de la sección
+            const { data: secData } = await supabaseClient.from('requirement_sections').select('id').eq('name', sectionName).single();
+            
+            const { data, error } = await supabaseClient.from('requirements').insert([{
+                section_id: secData.id,
+                name: name,
+                deadline: deadline
+            }]).select();
+
+            if (error) return showToast('Error al guardar requisito: ' + error.message, 'error');
+
+            REQUIREMENTS_DATA[sectionName].items.push(data[0]);
+
+            closeModal('modal-add-requirement');
+            renderRequirements();
+            renderDashboard();
+
+            if (state.currentDetailParticipant) {
+                const participant = state.participants.find(p => p.id === state.currentDetailParticipant);
+                if (participant) renderParticipantDetail(participant);
+            }
+
+            showToast('Requisito agregado exitosamente');
+        }
+
+        async function updateGlobalRequirementDeadline(reqId, newDate) {
+            Object.values(REQUIREMENTS_DATA).forEach(section => {
+                const req = section.items.find(r => r.id === reqId);
+                if (req) req.deadline = newDate;
+            });
+            
+            // Nota: Aquí se debería actualizar en la tabla 'requirements' si se usara dinámicamente
+            showToast('Fecha límite actualizada');
+
+            if (document.getElementById('tab-detail').classList.contains('active') && state.currentDetailParticipant) {
+                const p = state.participants.find(part => part.id === state.currentDetailParticipant);
+                if (p) renderParticipantDetail(p);
+            }
+            if (document.getElementById('tab-requirements').classList.contains('active')) renderRequirements();
+            renderDashboard();
+        }
+
+        function renderRequirements() {
+            let html = '';
+            Object.entries(REQUIREMENTS_DATA).forEach(([sectionName, section]) => {
+                const isDynamicSection = ['Encuentros presenciales', 'Encuentros virtuales'].includes(sectionName);
+
+                html += `
+                    <div class="section-accordion">
+                        <div class="section-header" onclick="toggleSection(this)">
+                            <div>
+                                <span>${sectionName}</span>
+                                <span class="badge badge-info" style="margin-left:0.5rem;">${section.items.length} requisitos</span>
+                            </div>
+                            <div style="display:flex;align-items:center;gap:1rem;">
+                                ${isDynamicSection ? `<button class="btn btn-primary btn-sm no-print" onclick="event.stopPropagation();openAddRequirementModal('${sectionName}')">➕ Agregar Requisito</button>` : ''}
+                                <span class="arrow">▼</span>
+                            </div>
+                        </div>
+                        <div class="section-body">
+                `;
+
+                if (section.items.length === 0) {
+                    html += `
+                        <div class="empty-section-notice">
+                            ${isDynamicSection ? '📋 Los estudiantes verán este tema una vez que se le agregue trabajo' : 'Sin requisitos en esta sección'}
+                        </div>
+                    `;
+                } else {
+                    html += `
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Requisito</th>
+                                    <th>Fecha Límite</th>
+                                    <th>Completados</th>
+                                    <th>% Cumplimiento</th>
+                                    ${isDynamicSection ? '<th>Acciones</th>' : ''}
+                                </tr>
+                            </thead>
+                            <tbody>
+                    `;
+
+                    section.items.forEach(req => {
+                        const filteredForStats = getFilteredParticipants();
+                        const completed = filteredForStats.filter(p => p.completions && p.completions[req.id]).length;
+                        const total = filteredForStats.length;
+                        const pct = total > 0 ? Math.round((completed / total) * 100) : 0;
+                        const barClass = pct >= 80 ? 'success' : pct >= 50 ? 'warning' : pct > 0 ? 'danger' : '';
+
+                        html += `
+                            <tr>
+                                <td><code style="background:var(--gray-100);padding:0.2rem 0.4rem;border-radius:4px;font-size:0.75rem;">${req.id}</code></td>
+                                <td>${req.name}</td>
+                                <td><input type="date" class="date-input" value="${req.deadline}" onchange="updateGlobalRequirementDeadline('${req.id}', this.value)"></td>
+                                <td>${completed}/${total}</td>
+                                <td>
+                                    <div style="display:flex;align-items:center;gap:0.5rem;">
+                                        <div class="progress-bar-container" style="width:80px;">
+                                            <div class="progress-bar ${barClass}" style="width:${pct}%"></div>
+                                        </div>
+                                        <span style="font-size:0.8rem;">${pct}%</span>
+                                    </div>
+                                </td>
+                                ${isDynamicSection ? `<td><button class="btn btn-danger btn-sm" onclick="deleteRequirement('${sectionName}', '${req.id}')">️</button></td>` : ''}
+                            </tr>
+                        `;
+                    });
+
+                    html += `
+                            </tbody>
+                        </table>
+                    `;
+                }
+
+                html += `
+                        </div>
+                    </div>
+                `;
+            });
+
+            document.getElementById('requirements-list').innerHTML = html;
+        }
+
+        async function deleteRequirement(sectionName, reqId) {
+            if (!confirm('¿Está seguro de eliminar este requisito?')) return;
+
+            REQUIREMENTS_DATA[sectionName].items = REQUIREMENTS_DATA[sectionName].items.filter(r => r.id !== reqId);
+
+            // Limpiar datos huérfanos localmente (en producción borrar de la DB)
+            state.participants.forEach(p => {
+                if (p.completions) delete p.completions[reqId];
+                if (p.observations) delete p.observations[reqId];
+            });
+            
+            await supabaseClient.from('completions').delete().eq('requirement_id', reqId);
+            await supabaseClient.from('observations').delete().eq('requirement_id', reqId);
+
+            renderRequirements();
+            renderDashboard();
+
+            if (state.currentDetailParticipant) {
+                const participant = state.participants.find(p => p.id === state.currentDetailParticipant);
+                if (participant) renderParticipantDetail(participant);
+            }
+
+            showToast('Requisito eliminado');
+        }
+
+        // ==================== REPORTS ====================
+        function populateReportParticipants() {
+            const select = document.getElementById('report-participant');
+            select.innerHTML = '<option value="">-- Seleccionar --</option>';
+            state.participants.forEach(p => {
+                select.innerHTML += `<option value="${p.id}">${p.name}</option>`;
+            });
+        }
+
+        function generateReport() {
+            const type = document.getElementById('report-type').value;
+            const participantId = document.getElementById('report-participant').value;
+            const output = document.getElementById('report-output');
+            output.style.display = 'block';
+
+            let html = `
+                <div class="report-header">
+                    <h2>${state.settings.programName}</h2>
+                    <p>${state.settings.orgName || 'Organización'} ${state.settings.orgName ? '•' : ''} Año ${state.settings.programYear}</p>
+                    <p style="margin-top:0.5rem;">Reporte generado: ${new Date().toLocaleString('es')}</p>
+                </div>
+            `;
+
+            switch (type) {
+                case 'general':
+                    html += generateGeneralReport();
+                    break;
+                case 'participant':
+                    if (!participantId) {
+                        html += '<p style="color:var(--danger);">Seleccione un participante</p>';
+                    } else {
+                        const p = state.participants.find(part => part.id === participantId);
+                        html += generateParticipantReport(p);
+                    }
+                    break;
+                case 'section':
+                    html += generateSectionReport();
+                    break;
+                case 'deadlines':
+                    html += generateDeadlinesReport();
+                    break;
+                case 'compliance':
+                    html += generateComplianceReport();
+                    break;
+            }
+
+            output.innerHTML = html;
+        }
+
+        function generateGeneralReport() {
+            const total = getAllRequirements().length;
+            const filtered = getFilteredParticipants();
+            let html = '<h3 style="margin-bottom:1rem;">Resumen General</h3>';
+            html += '<table><thead><tr><th>Participante</th><th>Iglesia</th><th>Completados</th><th>Progreso</th><th>Estado</th></tr></thead><tbody>';
+
+            filtered.forEach(p => {
+                const completed = getAllRequirements().filter(r => p.completions && p.completions[r.id]).length;
+                const pct = total > 0 ? Math.round((completed / total) * 100) : 0;
+                const status = pct === 100 ? 'Completado' : pct > 0 ? 'En Progreso' : 'Sin Iniciar';
+                const badgeClass = pct === 100 ? 'badge-success' : pct > 0 ? 'badge-warning' : 'badge-danger';
+
+                html += `<tr>
+                    <td><strong>${p.name}</strong></td>
+                    <td>${p.church || '-'}</td>
+                    <td>${completed}/${total}</td>
+                    <td>
+                        <div class="progress-bar-container" style="width:100px;display:inline-block;vertical-align:middle;">
+                            <div class="progress-bar ${pct >= 80 ? 'success' : pct >= 50 ? 'warning' : 'danger'}" style="width:${pct}%"></div>
+                        </div> ${pct}%
+                    </td>
+                    <td><span class="badge ${badgeClass}">${status}</span></td>
+                </tr>`;
+            });
+
+            html += '</tbody></table>';
+
+            if (filtered.length === 0) {
+                html += '<p class="empty-state">No hay participantes registrados</p>';
+            }
+
+            return html;
+        }
+
+        function generateParticipantReport(p) {
+            const total = getAllRequirements().length;
+            const completed = getAllRequirements().filter(r => p.completions && p.completions[r.id]).length;
+            const pct = total > 0 ? Math.round((completed / total) * 100) : 0;
+
+            let html = `
+                <h3 style="margin-bottom:1rem;">Reporte Individual: ${p.name}</h3>
+                <div style="background:var(--gray-50);padding:1rem;border-radius:8px;margin-bottom:1.5rem;">
+                    <p><strong>Nombre:</strong> ${p.name}</p>
+                    <p><strong>Iglesia:</strong> ${p.church || 'N/A'}</p>
+                    <p><strong>Edad:</strong> ${p.age || 'N/A'}</p>
+                    <p><strong>Teléfono:</strong> ${p.phone || 'N/A'}</p>
+                    <p><strong>Email:</strong> ${p.email || 'N/A'}</p>
+                    <p><strong>Fecha de Inscripción:</strong> ${p.enrollmentDate ? formatDate(p.enrollmentDate) : 'N/A'}</p>
+                    <p><strong>Progreso General:</strong> ${pct}% (${completed}/${total})</p>
+                </div>
+                <table><thead><tr><th>Sección</th><th>Requisito</th><th>Fecha Límite</th><th>Estado</th><th>Fecha Completado</th></tr></thead><tbody>
+            `;
+
+            Object.entries(REQUIREMENTS_DATA).forEach(([sectionName, section]) => {
+                section.items.forEach(req => {
+                    const isCompleted = p.completions && p.completions[req.id];
+                    const completionDate = isCompleted ? formatDate(p.completions[req.id].date) : '-';
+                    const isOverdue = !isCompleted && new Date(req.deadline) < new Date();
+                    const statusBadge = isCompleted ? '<span class="badge badge-success">Completado</span>' :
+                        isOverdue ? '<span class="badge badge-danger">Vencido</span>' :
+                        '<span class="badge badge-warning">Pendiente</span>';
+
+                    html += `<tr>
+                        <td>${sectionName}</td>
+                        <td>${req.name}</td>
+                        <td>${formatDate(req.deadline)}</td>
+                        <td>${statusBadge}</td>
+                        <td>${completionDate}</td>
+                    </tr>`;
+                });
+            });
+
+            html += '</tbody></table>';
+            return html;
+        }
+
+        function generateSectionReport() {
+            let html = '<h3 style="margin-bottom:1rem;">Reporte por Sección</h3>';
+            const filtered = getFilteredParticipants();
+
+            Object.entries(REQUIREMENTS_DATA).forEach(([sectionName, section]) => {
+                if (section.items.length === 0) return;
+
+                let sectionCompleted = 0;
+                let sectionTotal = section.items.length * filtered.length;
+
+                section.items.forEach(req => {
+                    state.participants.forEach(p => {
+                        if (p.completions && p.completions[req.id]) sectionCompleted++;
+                    });
+                });
+
+                const pct = sectionTotal > 0 ? Math.round((sectionCompleted / sectionTotal) * 100) : 0;
+
+                html += `<div style="margin-bottom:1.5rem;">
+                    <h4 style="margin-bottom:0.5rem;">${sectionName} <span class="badge badge-info">${pct}%</span></h4>
+                    <div class="progress-bar-container" style="height:10px;margin-bottom:0.75rem;">
+                        <div class="progress-bar ${pct >= 80 ? 'success' : pct >= 50 ? 'warning' : 'danger'}" style="width:${pct}%"></div>
+                    </div>
+                    <table><thead><tr><th>Requisito</th>`;
+                filtered.forEach(p => {
+                    html += `<th style="font-size:0.7rem;">${p.name.split(' ')[0]}</th>`;
+                });
+                html += `</tr></thead><tbody>`;
+
+                section.items.forEach(req => {
+                    html += `<tr><td style="font-size:0.8rem;">${req.name.substring(0, 40)}...</td>`;
+                    filtered.forEach(p => {
+                        const done = p.completions && p.completions[req.id];
+                        html += `<td style="text-align:center;">${done ? '✅' : '⬜'}</td>`;
+                    });
+                    html += `</tr>`;
+                });
+
+                html += `</tbody></table></div>`;
+            });
+
+            return html;
+        }
+
+        function generateDeadlinesReport() {
+            const today = new Date();
+            let html = '<h3 style="margin-bottom:1rem;">Reporte de Fechas Límite</h3>';
+            const filtered = getFilteredParticipants();
+            html += '<table><thead><tr><th>Requisito</th><th>Sección</th><th>Fecha Límite</th><th>Días Restantes</th><th>Pendientes</th><th>Completados</th></tr></thead><tbody>';
+
+            const allReqs = [];
+            Object.entries(REQUIREMENTS_DATA).forEach(([sectionName, section]) => {
+                section.items.forEach(req => {
+                    allReqs.push({ ...req, section: sectionName });
+                });
+            });
+
+            allReqs.sort((a, b) => new Date(a.deadline) - new Date(b.deadline)).forEach(req => {
+                const daysLeft = Math.ceil((new Date(req.deadline) - today) / (1000 * 60 * 60 * 24));
+                const completed = filtered.filter(p => p.completions && p.completions[req.id]).length;
+                const pending = filtered.length - completed;
+                const badgeClass = daysLeft < 0 ? 'badge-danger' : daysLeft <= 7 ? 'badge-warning' : 'badge-info';
+                const daysText = daysLeft < 0 ? `Vencido hace ${Math.abs(daysLeft)} días` : `${daysLeft} días`;
+
+                html += `<tr>
+                    <td>${req.name}</td>
+                    <td>${req.section}</td>
+                    <td>${formatDate(req.deadline)}</td>
+                    <td><span class="badge ${badgeClass}">${daysText}</span></td>
+                    <td>${pending}</td>
+                    <td>${completed}</td>
+                </tr>`;
+            });
+
+            html += '</tbody></table>';
+            return html;
+        }
+
+        function generateComplianceReport() {
+            let html = '<h3 style="margin-bottom:1rem;">Reporte de Cumplimiento Detallado</h3>';
+            const filtered = getFilteredParticipants();
+
+            const total = getAllRequirements().length;
+            const complianceLevels = {
+                '100%': filtered.filter(p => {
+                    const c = getAllRequirements().filter(r => p.completions && p.completions[r.id]).length;
+                    return c === total;
+                }).length,
+                '75-99%': filtered.filter(p => {
+                    const c = getAllRequirements().filter(r => p.completions && p.completions[r.id]).length;
+                    const pct = (c / total) * 100;
+                    return pct >= 75 && pct < 100;
+                }).length,
+                '50-74%': filtered.filter(p => {
+                    const c = getAllRequirements().filter(r => p.completions && p.completions[r.id]).length;
+                    const pct = (c / total) * 100;
+                    return pct >= 50 && pct < 75;
+                }).length,
+                '25-49%': filtered.filter(p => {
+                    const c = getAllRequirements().filter(r => p.completions && p.completions[r.id]).length;
+                    const pct = (c / total) * 100;
+                    return pct >= 25 && pct < 50;
+                }).length,
+                '0-24%': filtered.filter(p => {
+                    const c = getAllRequirements().filter(r => p.completions && p.completions[r.id]).length;
+                    const pct = (c / total) * 100;
+                    return pct < 25;
+                }).length
+            };
+
+            html += '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:1rem;margin-bottom:2rem;">';
+            Object.entries(complianceLevels).forEach(([level, count]) => {
+                html += `<div class="stat-card"><div class="stat-value">${count}</div><div class="stat-label">${level}</div></div>`;
+            });
+            html += '</div>';
+
+            html += '<h4 style="margin-bottom:1rem;">Matriz de Cumplimiento por Participante y Sección</h4>';
+            html += '<table><thead><tr><th>Participante</th>';
+            Object.keys(REQUIREMENTS_DATA).forEach(s => {
+                if (REQUIREMENTS_DATA[s].items.length > 0) {
+                    html += `<th style="font-size:0.65rem;">${s}</th>`;
+                }
+            });
+            html += '<th>Total</th></tr></thead><tbody>';
+
+            filtered.forEach(p => {
+                html += `<tr><td><strong>${p.name}</strong></td>`;
+                let totalCompleted = 0;
+                let totalReqs = 0;
+                Object.entries(REQUIREMENTS_DATA).forEach(([sectionName, section]) => {
+                    if (section.items.length === 0) return;
+                    const completed = section.items.filter(r => p.completions && p.completions[r.id]).length;
+                    totalCompleted += completed;
+                    totalReqs += section.items.length;
+                    const pct = Math.round((completed / section.items.length) * 100);
+                    const color = pct === 100 ? 'var(--success)' : pct >= 50 ? 'var(--warning)' : 'var(--danger)';
+                    html += `<td style="text-align:center;background:${color}22;color:${color};font-weight:600;">${pct}%</td>`;
+                });
+                const totalPct = totalReqs > 0 ? Math.round((totalCompleted / totalReqs) * 100) : 0;
+                html += `<td style="text-align:center;font-weight:700;">${totalPct}%</td></tr>`;
+            });
+
+            html += '</tbody></table>';
+            return html;
+        }
+
+        function printReport() {
+            window.print();
+        }
+
+        function exportReportCSV() {
+            const type = document.getElementById('report-type').value;
+            let csv = '';
+            const filtered = getFilteredParticipants();
+
+            if (type === 'general') {
+                csv = 'Nombre,Iglesia,Edad,Telefono,Email,Completados,Total,Progreso,Estado\n';
+                const total = getAllRequirements().length;
+                filtered.forEach(p => {
+                    const completed = getAllRequirements().filter(r => p.completions && p.completions[r.id]).length;
+                    const pct = total > 0 ? Math.round((completed / total) * 100) : 0;
+                    const status = pct === 100 ? 'Completado' : pct > 0 ? 'En Progreso' : 'Sin Iniciar';
+                    csv += `"${p.name}","${p.church || ''}","${p.age || ''}","${p.phone || ''}","${p.email || ''}",${completed},${total},${pct}%,"${status}"\n`;
+                });
+            } else if (type === 'participant') {
+                const participantId = document.getElementById('report-participant').value;
+                const p = state.participants.find(part => part.id === participantId);
+                if (p) {
+                    csv = 'Sección,Requisito,Fecha Límite,Estado,Fecha Completado,Observación\n';
+                    Object.entries(REQUIREMENTS_DATA).forEach(([sectionName, section]) => {
+                        section.items.forEach(req => {
+                            const isCompleted = p.completions && p.completions[req.id];
+                            const status = isCompleted ? 'Completado' : (new Date(req.deadline) < new Date() ? 'Vencido' : 'Pendiente');
+                            const date = isCompleted ? p.completions[req.id].date : '';
+                            const obs = p.observations && p.observations[req.id] ? p.observations[req.id].text : '';
+                            csv += `"${sectionName}","${req.name}","${formatDate(req.deadline)}","${status}","${date}","${obs}"\n`;
+                        });
+                    });
+                }
+            } else {
+                csv = 'Requisito,Sección,Fecha Límite';
+                filtered.forEach(p => { csv += `,"${p.name}"`; });
+                csv += '\n';
+                Object.entries(REQUIREMENTS_DATA).forEach(([sectionName, section]) => {
+                    section.items.forEach(req => {
+                        csv += `"${req.name}","${sectionName}","${formatDate(req.deadline)}"`;
+                        filtered.forEach(p => {
+                            const done = p.completions && p.completions[req.id];
+                            csv += `,"${done ? 'Sí' : 'No'}"`;
+                        });
+                        csv += '\n';
+                    });
+                });
+            }
+
+            downloadFile(csv, `reporte_${type}_${new Date().toISOString().split('T')[0]}.csv`, 'text/csv');
+            showToast('Reporte CSV exportado');
+        }
+
+        function exportReportJSON() {
+            const type = document.getElementById('report-type').value;
+            const participantId = document.getElementById('report-participant').value;
+
+            let data = {};
+
+            if (type === 'participant' && participantId) {
+                const p = state.participants.find(part => part.id === participantId);
+                if (p) {
+                    data = {
+                        participant: p,
+                        requirements: getAllRequirements().map(r => ({
+                            ...r,
+                            completed: !!(p.completions && p.completions[r.id]),
+                            completionDate: p.completions && p.completions[r.id] ? p.completions[r.id].date : null
+                        }))
+                    };
+                }
+            } else {
+                data = {
+                    program: state.settings,
+                    generatedAt: new Date().toISOString(),
+                    participants: state.participants.map(p => ({
+                        ...p,
+                        progress: Math.round((getAllRequirements().filter(r => p.completions && p.completions[r.id]).length / getAllRequirements().length) * 100)
+                    })),
+                    requirements: REQUIREMENTS_DATA
+                };
+            }
+
+            downloadFile(JSON.stringify(data, null, 2), `reporte_${type}_${new Date().toISOString().split('T')[0]}.json`, 'application/json');
+            showToast('Reporte JSON exportado');
+        }
+
+        async function saveSettings() {
+            const program_name = document.getElementById('program-name').value;
+            const org_name = document.getElementById('org-name').value;
+            const program_year = document.getElementById('program-year').value;
+
+            const { error } = await supabaseClient.from('settings').upsert({
+                id: 1,
+                program_name,
+                org_name,
+                program_year
+            });
+
+            if (error) return showToast('Error al guardar configuración: ' + error.message, 'error');
+
+            state.settings = { programName: program_name, orgName: org_name, programYear: program_year };
+            showToast('Configuración guardada');
+        }
+
+        function exportAllData() {
+            const data = {
+                version: '1.0',
+                exportDate: new Date().toISOString(),
+                settings: state.settings,
+                participants: state.participants,
+                requirements: REQUIREMENTS_DATA
+            };
+            downloadFile(JSON.stringify(data, null, 2), `backup_liderazgo_juvenil_${new Date().toISOString().split('T')[0]}.json`, 'application/json');
+            showToast('Datos exportados exitosamente');
+        }
+
+        function importData(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    if (data.participants) {
+                        state.participants = data.participants;
+                    }
+                    if (data.settings) {
+                        state.settings = data.settings;
+                        document.getElementById('program-name').value = state.settings.programName;
+                        document.getElementById('org-name').value = state.settings.orgName;
+                        document.getElementById('program-year').value = state.settings.programYear;
+                    }
+                    if (data.requirements) {
+                        Object.keys(data.requirements).forEach(key => {
+                            if (REQUIREMENTS_DATA[key]) {
+                                REQUIREMENTS_DATA[key].items = data.requirements[key].items || [];
+                            }
+                        });
+                    }
+                    saveToStorage();
+                    renderDashboard();
+                    renderParticipants();
+                    renderRequirements();
+                    populateReportParticipants();
+                    showToast('Datos importados exitosamente');
+                } catch (err) {
+                    showToast('Error al importar: archivo inválido', 'error');
+                }
+            };
+            reader.readAsText(file);
+            event.target.value = '';
+        }
+
+        function clearAllData() {
+            if (!confirm('⚠️ ¿Está seguro de borrar TODOS los datos? Esta acción no se puede deshacer.')) return;
+            if (!confirm('Esta es su última oportunidad. ¿Confirmar eliminación total?')) return;
+
+            state.participants = [];
+            saveToStorage();
+            renderDashboard();
+            renderParticipants();
+            renderRequirements();
+            populateReportParticipants();
+            showToast('Todos los datos han sido eliminados');
+        }
+
+        // ==================== UTILITIES ====================
+        function getAllRequirements() {
+            let all = [];
+            Object.values(REQUIREMENTS_DATA).forEach(section => {
+                all = all.concat(section.items);
+            });
+            return all;
+        }
+
+        function formatDate(dateStr) {
+            if (!dateStr) return 'N/A';
+            const date = new Date(dateStr + 'T00:00:00');
+            return date.toLocaleDateString('es', { year: 'numeric', month: 'short', day: 'numeric' });
+        }
+
+        function downloadFile(content, filename, type) {
+            const blob = new Blob([content], { type: type });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = 'toast' + (type === 'error' ? ' error' : '');
+            toast.innerHTML = `<span>${type === 'error' ? '' : '✅'}</span><span>${message}</span>`;
+            container.appendChild(toast);
+
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateX(100%)';
+                toast.style.transition = 'all 0.3s';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        function exportRequirements() {
+            let csv = 'ID,Nombre,Fecha Límite,Sección\n';
+            Object.entries(REQUIREMENTS_DATA).forEach(([sectionName, section]) => {
+                section.items.forEach(req => {
+                    csv += `"${req.id}","${req.name}","${formatDate(req.deadline)}","${sectionName}"\n`;
+                });
+            });
+            downloadFile(csv, 'requisitos_programa.csv', 'text/csv');
+            showToast('Requisitos exportados');
+        }
+
+        // ==================== INIT ====================
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
