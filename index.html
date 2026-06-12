@@ -862,9 +862,9 @@
                             <tr>
                                 <th>Nombre</th>
                                 <th>Email</th>
+                                <th>Rol</th>
                                 <th>Grupo Asignado</th>
                                 <th>Estado</th>
-                                <th>Acciones</th>
                             </tr>
                         </thead>
                         <tbody id="users-list"></tbody>
@@ -1257,7 +1257,7 @@
                     });
                 }
 
-                let query = supabaseClient.from('participants').select('*, completions(*)');
+                let query = supabaseClient.from('participants').select('*, completions(*), observations(*)');
                 if (state.currentUser.role !== 'admin' && state.currentUser.groupId) {
                     query = query.eq('group_id', state.currentUser.groupId);
                 }
@@ -1267,8 +1267,13 @@
                 state.participants = (participants || []).map(p => ({
                     ...p,
                     groupId: p.group_id,
+                    enrollmentDate: p.enrollment_date,
                     completions: (p.completions || []).reduce((acc, c) => {
                         acc[c.requirement_id] = { date: c.completion_date };
+                        return acc;
+                    }, {}),
+                    observations: (p.observations || []).reduce((acc, o) => {
+                        acc[o.requirement_id] = { text: o.text, date: o.date };
                         return acc;
                     }, {})
                 }));
@@ -1524,18 +1529,22 @@
         function openAddParticipantModal() {
             const groupSelect = document.getElementById('p-group');
             groupSelect.innerHTML = '';
+            groupSelect.disabled = false;
+
             if (state.currentUser.role === 'admin') {
                 if (state.groups.length === 0) {
                     groupSelect.innerHTML = '<option value="">No hay grupos creados</option>';
                 } else {
                     state.groups.forEach(g => {
-                        if (g) groupSelect.innerHTML += `<option value="${g.id}">${g.name}</option>`;
+                        const isSelected = g.id === state.currentUser.groupId;
+                        groupSelect.innerHTML += `<option value="${g.id}" ${isSelected ? 'selected' : ''}>${g.name}</option>`;
                     });
                 }
             } else {
                 const userGroup = state.groups.find(g => g.id === state.currentUser.groupId);
                 if (userGroup) {
-                    groupSelect.innerHTML = `<option value="${userGroup.id}">${userGroup.name}</option>`;
+                    groupSelect.innerHTML = `<option value="${userGroup.id}" selected>${userGroup.name}</option>`;
+                    groupSelect.disabled = true;
                 } else {
                     groupSelect.innerHTML = `<option value="">Grupo no asignado o inaccesible</option>`;
                 }
@@ -1583,7 +1592,7 @@
             const { data, error } = await supabaseClient.from('participants').insert([pData]).select();
             if (error) {
                 if (error.code === '23505') {
-                    return showToast('Error: Ya existe un participante registrado con este nombre y apellidos.', 'error');
+                    return showToast('Error: Ya existe un participante con este nombre en este grupo.', 'error');
                 }
                 return showToast('Error al guardar: ' + error.message, 'error');
             }
@@ -1591,6 +1600,7 @@
             const newP = {
                 ...data[0],
                 groupId: data[0].group_id,
+                enrollmentDate: data[0].enrollment_date,
                 completions: {}
             };
 
@@ -1795,20 +1805,29 @@
             showToast('Fecha actualizada');
         }
 
-        function addObservation(participantId, reqId) {
+        async function addObservation(participantId, reqId) {
             const text = prompt('Ingrese una observación para este requisito:');
             if (!text) return;
 
             const participant = state.participants.find(p => p.id === participantId);
             if (!participant) return;
 
-            if (!participant.observations) participant.observations = {};
-            participant.observations[reqId] = {
+            const obsData = {
+                participant_id: participantId,
+                requirement_id: reqId,
                 text: text,
                 date: new Date().toISOString().split('T')[0]
             };
 
-            saveToStorage();
+            const { error } = await supabaseClient.from('observations').insert([obsData]);
+            if (error) return showToast('Error al guardar observación: ' + error.message, 'error');
+
+            if (!participant.observations) participant.observations = {};
+            participant.observations[reqId] = {
+                text: text,
+                date: obsData.date
+            };
+
             renderParticipantDetail(participant);
             showToast('Observación agregada');
         }
@@ -1851,7 +1870,7 @@
                 }
 
                 const idx = state.participants.findIndex(part => part.id === id);
-                state.participants[idx] = { ...state.participants[idx], ...data[0], groupId: data[0].group_id };
+                state.participants[idx] = { ...state.participants[idx], ...data[0], groupId: data[0].group_id, enrollmentDate: data[0].enrollment_date };
                 
                 closeModal('modal-add-participant');
                 renderParticipants();
@@ -1933,20 +1952,25 @@
                 const group = state.groups.find(g => g.id === u.groupId);
                 const isAssigned = !!u.groupId;
                 
-                let selectHtml = `<select class="form-control" onchange="assignGroupToUser('${u.id}', this.value)" style="width:auto;">
+                let groupSelectHtml = `<select class="form-control" onchange="assignGroupToUser('${u.id}', this.value)" style="width:auto;">
                     <option value="">-- Sin Grupo --</option>`;
                 state.groups.forEach(g => {
-                    selectHtml += `<option value="${g.id}" ${u.groupId === g.id ? 'selected' : ''}>${g.name}</option>`;
+                    groupSelectHtml += `<option value="${g.id}" ${u.groupId === g.id ? 'selected' : ''}>${g.name}</option>`;
                 });
-                selectHtml += `</select>`;
+                groupSelectHtml += `</select>`;
+
+                let roleSelectHtml = `<select class="form-control" onchange="updateUserRole('${u.id}', this.value)" style="width:auto;">
+                    <option value="user" ${u.role === 'user' ? 'selected' : ''}>Usuario</option>
+                    <option value="admin" ${u.role === 'admin' ? 'selected' : ''}>Admin</option>
+                </select>`;
 
                 html += `
                     <tr>
                         <td>${u.name}</td>
                         <td>${u.email}</td>
-                        <td>${selectHtml}</td>
+                        <td>${roleSelectHtml}</td>
+                        <td>${groupSelectHtml}</td>
                         <td><span class="badge ${isAssigned ? 'badge-success' : 'badge-danger'}">${isAssigned ? 'Habilitado' : 'Sin Acceso'}</span></td>
-                        <td>-</td>
                     </tr>
                 `;
             });
@@ -1964,6 +1988,19 @@
             if (user) user.groupId = groupId;
             renderUsers();
             showToast('Usuario actualizado');
+        }
+
+        async function updateUserRole(userId, newRole) {
+            const { error } = await supabaseClient.from('profiles')
+                .update({ role: newRole })
+                .eq('id', userId);
+
+            if (error) return showToast('Error al cambiar rol: ' + error.message, 'error');
+
+            const user = state.registeredUsers.find(u => u.id === userId);
+            if (user) user.role = newRole;
+            renderUsers();
+            showToast('Rol de usuario actualizado');
         }
 
         // ==================== REQUIREMENTS MANAGEMENT ====================

@@ -36,14 +36,15 @@ CREATE TABLE requirements (
 CREATE TABLE participants (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     group_id UUID REFERENCES groups(id) ON DELETE CASCADE,
-    name TEXT NOT NULL UNIQUE,
+    name TEXT NOT NULL,
     age INT,
     phone TEXT,
     email TEXT,
     church TEXT,
     enrollment_date DATE DEFAULT CURRENT_DATE,
     notes TEXT,
-    created_at TIMESTAMPTZ DEFAULT now()
+    created_at TIMESTAMPTZ DEFAULT now(),
+    UNIQUE(group_id, name)
 );
 
 -- 6. COMPLETITUD DE REQUISITOS (Relación muchos a muchos)
@@ -85,6 +86,7 @@ ALTER TABLE completions ENABLE ROW LEVEL SECURITY;
 ALTER TABLE profiles ENABLE ROW LEVEL SECURITY;
 ALTER TABLE groups ENABLE ROW LEVEL SECURITY;
 ALTER TABLE settings ENABLE ROW LEVEL SECURITY;
+ALTER TABLE observations ENABLE ROW LEVEL SECURITY;
 
 -- Política: Los usuarios solo ven participantes de su propio grupo. Admins ven todos.
 CREATE POLICY "Users can only access their group participants" ON participants
@@ -97,6 +99,12 @@ CREATE POLICY "Users can only access their group participants" ON participants
 CREATE POLICY "Users can access completions of their group" ON completions
     FOR ALL USING (
         EXISTS (SELECT 1 FROM participants WHERE id = completions.participant_id)
+    );
+
+-- Política: Observaciones filtradas por acceso al participante
+CREATE POLICY "Users can access observations of their group" ON observations
+    FOR ALL USING (
+        EXISTS (SELECT 1 FROM participants WHERE id = observations.participant_id)
     );
 
 -- Políticas para la tabla de Perfiles
@@ -114,9 +122,12 @@ CREATE POLICY "Settings are viewable by everyone" ON settings FOR SELECT USING (
 CREATE POLICY "Only admins can update settings" ON settings
     FOR UPDATE USING ((SELECT role FROM profiles WHERE id = auth.uid()) = 'admin');
 
--- Política para Groups: Solo los administradores pueden crear, leer, actualizar y eliminar grupos
+-- Permitir que todos los usuarios autenticados puedan ver los grupos para que el sistema funcione correctamente
+CREATE POLICY "Groups are viewable by authenticated users" ON groups
+    FOR SELECT TO authenticated USING (true);
+
 CREATE POLICY "Admins can manage groups" ON groups
-    FOR ALL USING ((SELECT role FROM profiles WHERE id = auth.uid()) = 'admin');
+    FOR INSERT, UPDATE, DELETE USING ((SELECT role FROM profiles WHERE id = auth.uid()) = 'admin');
 
 -- ==========================================
 -- 9. AUTOMATIZACIÓN DE PERFILES (TRIGGER)
