@@ -1252,7 +1252,10 @@
                 if (sections) {
                     sections.forEach(s => {
                         if (REQUIREMENTS_DATA[s.name]) {
-                            REQUIREMENTS_DATA[s.name].items = s.requirements || [];
+                            // Solo reemplazamos la lista estática si la DB tiene requisitos reales
+                            if (s.requirements && s.requirements.length > 0) {
+                                REQUIREMENTS_DATA[s.name].items = s.requirements;
+                            }
                         }
                     });
                 }
@@ -1691,7 +1694,7 @@
                                     <div class="progress-bar ${sectionBarClass}" style="width:${sectionPct}%"></div>
                                 </div>
                                 ` : ''}
-                                ${isDynamicSection ? `<button class="btn btn-primary btn-sm no-print" onclick="event.stopPropagation();openAddRequirementModal('${sectionName}')"> Agregar</button>` : ''}
+                                    ${isDynamicSection && state.currentUser.role === 'admin' ? `<button class="btn btn-primary btn-sm no-print" onclick="event.stopPropagation();openAddRequirementModal('${sectionName}')"> Agregar</button>` : ''}
                                 <span class="arrow">▼</span>
                             </div>
                         </div>
@@ -1718,7 +1721,7 @@
                                     ${isCompleted ? '<span class="badge badge-success" style="margin-left:0.5rem;">✓ Completado</span>' : ''}
                                 </div>
                                 <div class="req-deadline">
-                                    Límite: <input type="date" class="date-input" value="${req.deadline}" onchange="updateGlobalRequirementDeadline('${req.id}', this.value)">
+                                    Límite: <input type="date" class="date-input" value="${req.deadline}" onchange="updateGlobalRequirementDeadline('${req.id}', this.value)" ${state.currentUser.role !== 'admin' ? 'disabled' : ''}>
                                 </div>
                                 <div class="req-status">
                                     <input type="checkbox" class="checkbox-custom"
@@ -1769,27 +1772,40 @@
             const participant = state.participants.find(p => p.id === participantId);
             if (!participant) return;
 
-            if (checked) {
-                const compDate = new Date().toISOString().split('T')[0];
-                const { error } = await supabaseClient.from('completions').upsert({
-                    participant_id: participantId,
-                    requirement_id: reqId,
-                    completion_date: compDate
-                }, { onConflict: 'participant_id,requirement_id' });
+            try {
+                if (checked) {
+                    const compDate = new Date().toISOString().split('T')[0];
+                    const { error } = await supabaseClient.from('completions').upsert({
+                        participant_id: participantId,
+                        requirement_id: reqId,
+                        completion_date: compDate
+                    }, { onConflict: 'participant_id,requirement_id' });
 
-                if (error) return showToast('Error: ' + error.message, 'error');
-                if (!participant.completions) participant.completions = {};
-                participant.completions[reqId] = { date: compDate };
-            } else {
-                const { error } = await supabaseClient.from('completions')
-                    .delete().match({ participant_id: participantId, requirement_id: reqId });
-                
-                if (error) return showToast('Error: ' + error.message, 'error');
-                delete participant.completions[reqId];
+                    if (error) throw error;
+                    if (!participant.completions) participant.completions = {};
+                    participant.completions[reqId] = { date: compDate };
+                } else {
+                    const { error } = await supabaseClient.from('completions')
+                        .delete()
+                        .eq('participant_id', participantId)
+                        .eq('requirement_id', reqId);
+                    
+                    if (error) throw error;
+                    if (participant.completions) delete participant.completions[reqId];
+                }
+                showToast(checked ? 'Requisito marcado ✓' : 'Requisito desmarcado');
+            } catch (err) {
+                console.error("Error al actualizar requisito:", err);
+                if (err.code === '22P02') {
+                    showToast('Error: La base de datos espera un formato UUID. Ejecuta el script SQL de actualización en Supabase.', 'error');
+                } else if (err.code === '23503') {
+                    showToast('Error: El requisito "' + reqId + '" no existe en la base de datos (Falta sincronizar).', 'error');
+                } else {
+                    showToast('Error de conexión: ' + err.message, 'error');
+                }
+            } finally {
+                renderParticipantDetail(participant);
             }
-
-            renderParticipantDetail(participant);
-            showToast(checked ? 'Requisito marcado como completado ✓' : 'Requisito desmarcado');
         }
 
         async function updateCompletionDate(participantId, reqId, date) {
@@ -2047,13 +2063,18 @@
         }
 
         async function updateGlobalRequirementDeadline(reqId, newDate) {
+            const { error } = await supabaseClient.from('requirements')
+                .update({ deadline: newDate })
+                .eq('id', reqId);
+
+            if (error) return showToast('Error al actualizar fecha límite: ' + error.message, 'error');
+
             Object.values(REQUIREMENTS_DATA).forEach(section => {
                 const req = section.items.find(r => r.id === reqId);
                 if (req) req.deadline = newDate;
             });
             
-            // Nota: Aquí se debería actualizar en la tabla 'requirements' si se usara dinámicamente
-            showToast('Fecha límite actualizada');
+            showToast('Fecha límite actualizada globalmente');
 
             if (document.getElementById('tab-detail').classList.contains('active') && state.currentDetailParticipant) {
                 const p = state.participants.find(part => part.id === state.currentDetailParticipant);
@@ -2076,7 +2097,7 @@
                                 <span class="badge badge-info" style="margin-left:0.5rem;">${section.items.length} requisitos</span>
                             </div>
                             <div style="display:flex;align-items:center;gap:1rem;">
-                                ${isDynamicSection ? `<button class="btn btn-primary btn-sm no-print" onclick="event.stopPropagation();openAddRequirementModal('${sectionName}')">➕ Agregar Requisito</button>` : ''}
+                                ${isDynamicSection && state.currentUser.role === 'admin' ? `<button class="btn btn-primary btn-sm no-print" onclick="event.stopPropagation();openAddRequirementModal('${sectionName}')">➕ Agregar Requisito</button>` : ''}
                                 <span class="arrow">▼</span>
                             </div>
                         </div>
@@ -2116,7 +2137,7 @@
                             <tr>
                                 <td><code style="background:var(--gray-100);padding:0.2rem 0.4rem;border-radius:4px;font-size:0.75rem;">${req.id}</code></td>
                                 <td>${req.name}</td>
-                                <td><input type="date" class="date-input" value="${req.deadline}" onchange="updateGlobalRequirementDeadline('${req.id}', this.value)"></td>
+                                <td><input type="date" class="date-input" value="${req.deadline}" onchange="updateGlobalRequirementDeadline('${req.id}', this.value)" ${state.currentUser.role !== 'admin' ? 'disabled' : ''}></td>
                                 <td>${completed}/${total}</td>
                                 <td>
                                     <div style="display:flex;align-items:center;gap:0.5rem;">
@@ -2126,7 +2147,7 @@
                                         <span style="font-size:0.8rem;">${pct}%</span>
                                     </div>
                                 </td>
-                                ${isDynamicSection ? `<td><button class="btn btn-danger btn-sm" onclick="deleteRequirement('${sectionName}', '${req.id}')">️</button></td>` : ''}
+                                ${isDynamicSection && state.currentUser.role === 'admin' ? `<td><button class="btn btn-danger btn-sm" onclick="deleteRequirement('${sectionName}', '${req.id}')">️</button></td>` : ''}
                             </tr>
                         `;
                     });
