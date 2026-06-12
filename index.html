@@ -1563,9 +1563,15 @@
                 return;
             }
 
+            const groupId = document.getElementById('p-group').value;
+            if (!groupId) {
+                showToast('Debe seleccionar un grupo válido. Si no hay grupos, cree uno en la pestaña Grupos.', 'error');
+                return;
+            }
+
             const pData = {
                 name: name,
-                group_id: document.getElementById('p-group').value,
+                group_id: groupId,
                 age: parseInt(document.getElementById('p-age').value) || null,
                 phone: document.getElementById('p-phone').value,
                 email: document.getElementById('p-email').value,
