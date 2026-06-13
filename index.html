@@ -2555,12 +2555,13 @@
             const org_name = document.getElementById('org-name').value;
             const program_year = document.getElementById('program-year').value;
 
-            const { error } = await supabaseClient.from('settings').upsert({
-                id: 1,
-                program_name,
-                org_name,
-                program_year
-            });
+            const { error } = await supabaseClient.from('settings')
+                .update({
+                    program_name,
+                    org_name,
+                    program_year
+                })
+                .eq('id', 1);
 
             if (error) return showToast('Error al guardar configuración: ' + error.message, 'error');
 

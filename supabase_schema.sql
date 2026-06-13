@@ -25,7 +25,7 @@ CREATE TABLE requirement_sections (
 
 -- 4. REQUISITOS DEL PROGRAMA
 CREATE TABLE requirements (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    id TEXT PRIMARY KEY DEFAULT gen_random_uuid()::text,
     section_id UUID REFERENCES requirement_sections(id) ON DELETE CASCADE,
     name TEXT NOT NULL,
     deadline DATE NOT NULL,
@@ -51,7 +51,7 @@ CREATE TABLE participants (
 CREATE TABLE completions (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     participant_id UUID REFERENCES participants(id) ON DELETE CASCADE,
-    requirement_id UUID NOT NULL REFERENCES requirements(id) ON DELETE CASCADE,
+    requirement_id TEXT NOT NULL REFERENCES requirements(id) ON DELETE CASCADE,
     completion_date DATE DEFAULT CURRENT_DATE,
     completed_at TIMESTAMPTZ DEFAULT now(),
     UNIQUE(participant_id, requirement_id)
@@ -61,7 +61,7 @@ CREATE TABLE completions (
 CREATE TABLE observations (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     participant_id UUID REFERENCES participants(id) ON DELETE CASCADE,
-    requirement_id UUID REFERENCES requirements(id) ON DELETE CASCADE,
+    requirement_id TEXT REFERENCES requirements(id) ON DELETE CASCADE,
     text TEXT NOT NULL,
     date DATE DEFAULT CURRENT_DATE,
     created_at TIMESTAMPTZ DEFAULT now()
@@ -93,17 +93,33 @@ CREATE POLICY "Users can only access their group participants" ON participants
     FOR ALL USING (
         (SELECT role FROM public.profiles WHERE id = auth.uid()) = 'admin' OR
         group_id = (SELECT group_id FROM profiles WHERE id = auth.uid())
+    ) WITH CHECK (
+        (SELECT role FROM public.profiles WHERE id = auth.uid()) = 'admin' OR
+        group_id = (SELECT group_id FROM profiles WHERE id = auth.uid())
     );
     
 -- Política: Completitudes filtradas por acceso al participante (hereda de la política de participantes)
 CREATE POLICY "Users can access completions of their group" ON completions
-    FOR ALL USING (
-        EXISTS (SELECT 1 FROM participants WHERE id = completions.participant_id)
+    FOR ALL 
+    TO authenticated
+    USING (
+        EXISTS (
+            SELECT 1 FROM participants 
+            WHERE id = completions.participant_id
+        )
+    ) 
+    WITH CHECK (
+        EXISTS (
+            SELECT 1 FROM participants 
+            WHERE id = completions.participant_id
+        )
     );
 
 -- Política: Observaciones filtradas por acceso al participante
 CREATE POLICY "Users can access observations of their group" ON observations
     FOR ALL USING (
+        EXISTS (SELECT 1 FROM participants WHERE id = observations.participant_id)
+    ) WITH CHECK (
         EXISTS (SELECT 1 FROM participants WHERE id = observations.participant_id)
     );
 
@@ -119,8 +135,8 @@ CREATE POLICY "Admins can update all profiles" ON profiles
 
 -- Política para Settings: Todos pueden leer, solo admin edita
 CREATE POLICY "Settings are viewable by everyone" ON settings FOR SELECT USING (true);
-CREATE POLICY "Only admins can update settings" ON settings
-    FOR UPDATE USING ((SELECT role FROM profiles WHERE id = auth.uid()) = 'admin');
+CREATE POLICY "Admins can manage settings" ON settings
+    FOR ALL TO authenticated USING ((SELECT role FROM public.profiles WHERE id = auth.uid()) = 'admin');
 
 -- Permitir que todos los usuarios autenticados puedan ver los grupos para que el sistema funcione correctamente
 CREATE POLICY "Groups are viewable by authenticated users" ON groups
