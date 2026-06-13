@@ -619,6 +619,7 @@
         }
 
         @media print {
+            @page { size: landscape; }
             .header, .nav-tabs, .btn, .no-print {
                 display: none !important;
             }
@@ -915,7 +916,7 @@
                 </div>
                 <div class="action-row" style="margin-top:1rem;">
                     <button class="btn btn-outline btn-sm" onclick="printReport()">🖨️ Imprimir</button>
-                    <button class="btn btn-outline btn-sm" onclick="exportReportCSV()">📄 Exportar CSV</button>
+                    <button class="btn btn-outline btn-sm" onclick="exportReportPDF()">📄 Exportar PDF</button>
                     <button class="btn btn-outline btn-sm" onclick="exportReportJSON()">💾 Exportar JSON</button>
                 </div>
             </div>
@@ -1082,6 +1083,7 @@
     <div class="toast-container" id="toast-container"></div>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <script>
         const supabaseUrl = 'https://uokktpylaeeusezdwqqb.supabase.co';
         const supabaseKey = 'sb_publishable_NI8guSM1ualSIrpLZ9sz0A_EggPNZBw';
@@ -2467,53 +2469,40 @@
             window.print();
         }
 
-        function exportReportCSV() {
-            const type = document.getElementById('report-type').value;
-            let csv = '';
-            const filtered = getFilteredParticipants();
-
-            if (type === 'general') {
-                csv = 'Nombre,Iglesia,Edad,Telefono,Email,Completados,Total,Progreso,Estado\n';
-                const total = getAllRequirements().length;
-                filtered.forEach(p => {
-                    const completed = getAllRequirements().filter(r => p.completions && p.completions[r.id]).length;
-                    const pct = total > 0 ? Math.round((completed / total) * 100) : 0;
-                    const status = pct === 100 ? 'Completado' : pct > 0 ? 'En Progreso' : 'Sin Iniciar';
-                    csv += `"${p.name}","${p.church || ''}","${p.age || ''}","${p.phone || ''}","${p.email || ''}",${completed},${total},${pct}%,"${status}"\n`;
-                });
-            } else if (type === 'participant') {
-                const participantId = document.getElementById('report-participant').value;
-                const p = state.participants.find(part => part.id === participantId);
-                if (p) {
-                    csv = 'Sección,Requisito,Fecha Límite,Estado,Fecha Completado,Observación\n';
-                    Object.entries(REQUIREMENTS_DATA).forEach(([sectionName, section]) => {
-                        section.items.forEach(req => {
-                            const isCompleted = p.completions && p.completions[req.id];
-                            const status = isCompleted ? 'Completado' : (new Date(req.deadline) < new Date() ? 'Vencido' : 'Pendiente');
-                            const date = isCompleted ? p.completions[req.id].date : '';
-                            const obs = p.observations && p.observations[req.id] ? p.observations[req.id].text : '';
-                            csv += `"${sectionName}","${req.name}","${formatDate(req.deadline)}","${status}","${date}","${obs}"\n`;
-                        });
-                    });
-                }
-            } else {
-                csv = 'Requisito,Sección,Fecha Límite';
-                filtered.forEach(p => { csv += `,"${p.name}"`; });
-                csv += '\n';
-                Object.entries(REQUIREMENTS_DATA).forEach(([sectionName, section]) => {
-                    section.items.forEach(req => {
-                        csv += `"${req.name}","${sectionName}","${formatDate(req.deadline)}"`;
-                        filtered.forEach(p => {
-                            const done = p.completions && p.completions[req.id];
-                            csv += `,"${done ? 'Sí' : 'No'}"`;
-                        });
-                        csv += '\n';
-                    });
-                });
+        function exportReportPDF() {
+            const element = document.getElementById('report-output');
+            if (element.style.display === 'none' || !element.innerHTML) {
+                return showToast('Primero debe generar un reporte para exportar', 'error');
             }
 
-            downloadFile(csv, `reporte_${type}_${new Date().toISOString().split('T')[0]}.csv`, 'text/csv');
-            showToast('Reporte CSV exportado');
+            // Inyectamos estilos temporales para comprimir el contenido y que quepa en la hoja
+            const style = document.createElement('style');
+            style.innerHTML = `
+                #report-output { font-size: 10px !important; }
+                #report-output table { width: 100% !important; border-collapse: collapse !important; }
+                #report-output th, #report-output td { padding: 4px 6px !important; font-size: 9px !important; }
+                #report-output h2 { font-size: 16px !important; margin-bottom: 5px !important; }
+                #report-output h3, #report-output h4 { font-size: 12px !important; margin-top: 10px !important; }
+                #report-output .badge { font-size: 7px !important; padding: 1px 4px !important; }
+                #report-output .progress-bar-container { height: 6px !important; margin: 2px 0 !important; }
+                #report-output .stat-card { padding: 10px !important; }
+                #report-output .stat-value { font-size: 18px !important; }
+                #report-output .report-header { margin-bottom: 15px !important; }
+            `;
+            document.head.appendChild(style);
+
+            const opt = {
+                margin: 0.25,
+                filename: `reporte_${new Date().toISOString().split('T')[0]}.pdf`,
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2, useCORS: true },
+                jsPDF: { unit: 'in', format: 'letter', orientation: 'landscape' }
+            };
+            
+            html2pdf().set(opt).from(element).save().then(() => {
+                document.head.removeChild(style); // Limpiamos los estilos temporales después de exportar
+            });
+            showToast('Reporte PDF exportado');
         }
 
         function exportReportJSON() {
