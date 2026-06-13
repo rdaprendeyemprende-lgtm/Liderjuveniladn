@@ -133,6 +133,9 @@ CREATE POLICY "Users can update their own profile" ON profiles
 CREATE POLICY "Admins can update all profiles" ON profiles
     FOR UPDATE USING ((SELECT role FROM public.profiles WHERE id = auth.uid()) = 'admin');
 
+CREATE POLICY "Admins can delete all profiles" ON profiles
+    FOR DELETE USING ((SELECT role FROM public.profiles WHERE id = auth.uid()) = 'admin');
+
 -- Política para Settings: Todos pueden leer, solo admin edita
 CREATE POLICY "Settings are viewable by everyone" ON settings FOR SELECT USING (true);
 CREATE POLICY "Admins can manage settings" ON settings

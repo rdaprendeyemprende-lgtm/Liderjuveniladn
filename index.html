@@ -866,6 +866,7 @@
                                 <th>Rol</th>
                                 <th>Grupo Asignado</th>
                                 <th>Estado</th>
+                                <th>Acciones</th>
                             </tr>
                         </thead>
                         <tbody id="users-list"></tbody>
@@ -1989,10 +1990,13 @@
                         <td>${roleSelectHtml}</td>
                         <td>${groupSelectHtml}</td>
                         <td><span class="badge ${isAssigned ? 'badge-success' : 'badge-danger'}">${isAssigned ? 'Habilitado' : 'Sin Acceso'}</span></td>
+                        <td>
+                            ${u.id !== state.currentUser.id ? `<button class="btn btn-danger btn-sm" onclick="deleteUser('${u.id}')">🗑️ Eliminar</button>` : ''}
+                        </td>
                     </tr>
                 `;
             });
-            document.getElementById('users-list').innerHTML = html || '<tr><td colspan="5" style="text-align:center;padding:2rem;">No hay usuarios registrados</td></tr>';
+            document.getElementById('users-list').innerHTML = html || '<tr><td colspan="6" style="text-align:center;padding:2rem;">No hay usuarios registrados</td></tr>';
         }
 
         async function assignGroupToUser(userId, groupId) {
@@ -2019,6 +2023,22 @@
             if (user) user.role = newRole;
             renderUsers();
             showToast('Rol de usuario actualizado');
+        }
+
+        async function deleteUser(userId) {
+            if (userId === state.currentUser.id) {
+                return showToast("No puedes eliminarte a ti mismo.", "error");
+            }
+            
+            if (!confirm('¿Estás seguro de que deseas eliminar este usuario? El usuario perderá el acceso al sistema inmediatamente.')) return;
+
+            const { error } = await supabaseClient.from('profiles').delete().eq('id', userId);
+
+            if (error) return showToast('Error al eliminar usuario: ' + error.message, 'error');
+
+            state.registeredUsers = state.registeredUsers.filter(u => u.id !== userId);
+            renderUsers();
+            showToast('Usuario eliminado del sistema');
         }
 
         // ==================== REQUIREMENTS MANAGEMENT ====================
