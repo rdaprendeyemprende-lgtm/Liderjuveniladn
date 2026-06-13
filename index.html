@@ -1493,7 +1493,8 @@
             }
 
             let html = '';
-            filtered.forEach(p => {
+            
+            const renderCard = (p) => {
                 const total = getAllRequirements().length;
                 const completed = getAllRequirements().filter(r => p.completions && p.completions[r.id]).length;
                 const pct = total > 0 ? Math.round((completed / total) * 100) : 0;
@@ -1501,34 +1502,49 @@
                 const statusBadge = pct === 100 ? '<span class="badge badge-success">Completado</span>' :
                     pct > 0 ? '<span class="badge badge-warning">En Progreso</span>' :
                     '<span class="badge badge-danger">Sin Iniciar</span>';
-
                 const group = state.groups.find(g => g.id === p.groupId);
                 const logoHtml = group ? `<img src="${group.logo}" class="group-logo-preview" style="width:24px;height:24px;vertical-align:middle;margin-right:5px;" onerror="this.src='img/logo.png'">` : '';
-
-                html += `
+                
+                return `
                     <div class="participant-card" onclick="openParticipantDetail('${p.id}')">
                         <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:0.75rem;">
-                            <div>
-                                <div class="name">${logoHtml}${p.name}</div>
-                                <div class="info">${p.church || 'Sin iglesia'} ${p.age ? '• ' + p.age + ' años' : ''}</div>
-                            </div>
+                            <div><div class="name">${logoHtml}${p.name}</div><div class="info">${p.church || 'Sin iglesia'} ${p.age ? '• ' + p.age + ' años' : ''}</div></div>
                             ${statusBadge}
                         </div>
-                        <div class="progress-bar-container">
-                            <div class="progress-bar ${barClass}" style="width:${pct}%"></div>
-                        </div>
+                        <div class="progress-bar-container"><div class="progress-bar ${barClass}" style="width:${pct}%"></div></div>
                         <div style="display:flex;justify-content:space-between;margin-top:0.5rem;">
-                            <span class="progress-text">${completed} de ${total} requisitos</span>
-                            <span class="progress-text" style="font-weight:600;">${pct}%</span>
+                            <span class="progress-text">${completed} de ${total} requisitos</span><span class="progress-text" style="font-weight:600;">${pct}%</span>
                         </div>
                         <div style="margin-top:0.75rem;display:flex;gap:0.5rem;" class="no-print">
                             <button class="btn btn-outline btn-sm" onclick="event.stopPropagation();openParticipantDetail('${p.id}')">📋 Ver Detalle</button>
                             <button class="btn btn-danger btn-sm" onclick="event.stopPropagation();deleteParticipant('${p.id}')">🗑️</button>
                         </div>
-                    </div>
-                `;
-            });
+                    </div>`;
+            };
 
+            if (state.currentUser.role === 'admin') {
+                state.groups.forEach(g => {
+                    const groupParticipants = filtered.filter(p => p.groupId === g.id);
+                    if (groupParticipants.length > 0) {
+                        html += `
+                            <div style="grid-column: 1 / -1; margin: 1.5rem 0 0.5rem 0; padding: 0.75rem 1rem; background: var(--gray-50); border-radius: 10px; border-left: 5px solid var(--primary); display: flex; align-items: center; justify-content: space-between;">
+                                <div style="display: flex; align-items: center; gap: 0.75rem;">
+                                    <img src="${g.logo}" style="width:35px;height:35px;border-radius:50%;object-fit:cover;" onerror="this.src='img/logo.png'">
+                                    <h3 style="color: var(--primary); font-size: 1.1rem; margin: 0;">${g.name}</h3>
+                                </div>
+                                <span class="badge badge-info">${groupParticipants.length} Participantes</span>
+                            </div>`;
+                        groupParticipants.forEach(p => html += renderCard(p));
+                    }
+                });
+                const orphans = filtered.filter(p => !p.groupId);
+                if (orphans.length > 0) {
+                    html += `<div style="grid-column: 1 / -1; margin-top: 1.5rem;"><h3 style="color: var(--danger);">Sin Grupo Asignado</h3></div>`;
+                    orphans.forEach(p => html += renderCard(p));
+                }
+            } else {
+                filtered.forEach(p => html += renderCard(p));
+            }
             document.getElementById('participants-grid').innerHTML = html;
         }
 
