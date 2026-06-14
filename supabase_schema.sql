@@ -87,6 +87,18 @@ ALTER TABLE profiles ENABLE ROW LEVEL SECURITY;
 ALTER TABLE groups ENABLE ROW LEVEL SECURITY;
 ALTER TABLE settings ENABLE ROW LEVEL SECURITY;
 ALTER TABLE observations ENABLE ROW LEVEL SECURITY;
+ALTER TABLE requirement_sections ENABLE ROW LEVEL SECURITY;
+ALTER TABLE requirements ENABLE ROW LEVEL SECURITY;
+
+-- Política para Secciones: Todos ven, solo admin edita
+CREATE POLICY "Sections are viewable by everyone" ON requirement_sections FOR SELECT USING (true);
+CREATE POLICY "Admins can manage sections" ON requirement_sections
+    FOR ALL TO authenticated USING ((SELECT role FROM public.profiles WHERE id = auth.uid()) = 'admin');
+
+-- Política para Requisitos: Todos ven, solo admin edita
+CREATE POLICY "Requirements are viewable by everyone" ON requirements FOR SELECT USING (true);
+CREATE POLICY "Admins can manage requirements" ON requirements
+    FOR ALL TO authenticated USING ((SELECT role FROM public.profiles WHERE id = auth.uid()) = 'admin');
 
 -- Política: Los usuarios solo ven participantes de su propio grupo. Admins ven todos.
 CREATE POLICY "Users can only access their group participants" ON participants

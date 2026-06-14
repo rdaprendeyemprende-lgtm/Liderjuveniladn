@@ -1255,9 +1255,21 @@
                 if (sections) {
                     sections.forEach(s => {
                         if (REQUIREMENTS_DATA[s.name]) {
-                            // Solo reemplazamos la lista estática si la DB tiene requisitos reales
-                            if (s.requirements && s.requirements.length > 0) {
-                                REQUIREMENTS_DATA[s.name].items = s.requirements;
+                            // Guardamos el ID de la sección para facilitar actualizaciones posteriores
+                            REQUIREMENTS_DATA[s.name].db_id = s.id;
+                            
+                            if (s.requirements) {
+                                s.requirements.forEach(dbReq => {
+                                    // Buscamos por ID o por nombre para evitar duplicados de requisitos estáticos
+                                    const index = REQUIREMENTS_DATA[s.name].items.findIndex(r => r.id === dbReq.id || r.name === dbReq.name);
+                                    if (index !== -1) {
+                                        // Fusionar datos de la DB con el objeto local
+                                        REQUIREMENTS_DATA[s.name].items[index] = { ...REQUIREMENTS_DATA[s.name].items[index], ...dbReq };
+                                    } else {
+                                        // Agregar requisitos nuevos creados dinámicamente
+                                        REQUIREMENTS_DATA[s.name].items.push(dbReq);
+                                    }
+                                });
                             }
                         }
                     });
@@ -2101,18 +2113,53 @@
         }
 
         async function updateGlobalRequirementDeadline(reqId, newDate) {
-            const { error } = await supabaseClient.from('requirements')
-                .update({ deadline: newDate })
-                .eq('id', reqId);
+            if (state.currentUser.role !== 'admin') {
+                return showToast('No tienes permisos para modificar fechas límite', 'error');
+            }
 
-            if (error) return showToast('Error al actualizar fecha límite: ' + error.message, 'error');
+            let targetReq = null;
+            let sectionName = null;
+            let sectionId = null;
 
-            Object.values(REQUIREMENTS_DATA).forEach(section => {
-                const req = section.items.find(r => r.id === reqId);
-                if (req) req.deadline = newDate;
-            });
-            
-            showToast('Fecha límite actualizada globalmente');
+            for (const [name, section] of Object.entries(REQUIREMENTS_DATA)) {
+                const found = section.items.find(r => r.id === reqId);
+                if (found) {
+                    targetReq = found; 
+                    sectionName = name;
+                    sectionId = section.db_id || found.section_id;
+                    break;
+                }
+            }
+            if (!targetReq) return;
+
+            try {
+                if (!sectionId) {
+                    const { data: secData, error: secError } = await supabaseClient
+                        .from('requirement_sections')
+                        .select('id')
+                        .eq('name', sectionName)
+                        .single();
+                    
+                    if (secError || !secData) throw new Error(`Sección "${sectionName}" no configurada en la base de datos.`);
+                    sectionId = secData.id;
+                    REQUIREMENTS_DATA[sectionName].db_id = sectionId;
+                }
+
+                const { error } = await supabaseClient.from('requirements').upsert({
+                    id: reqId,
+                    section_id: sectionId,
+                    name: targetReq.name,
+                    deadline: newDate
+                }, { onConflict: 'id' });
+
+                if (error) throw error;
+
+                targetReq.deadline = newDate;
+                showToast('Fecha límite guardada permanentemente');
+            } catch (err) {
+                console.error("Error al persistir fecha:", err);
+                return showToast('Error al guardar permanentemente: ' + err.message, 'error');
+            }
 
             if (document.getElementById('tab-detail').classList.contains('active') && state.currentDetailParticipant) {
                 const p = state.participants.find(part => part.id === state.currentDetailParticipant);
@@ -2630,7 +2677,6 @@
                             }
                         });
                     }
-                    saveToStorage();
                     renderDashboard();
                     renderParticipants();
                     renderRequirements();
@@ -2649,7 +2695,6 @@
             if (!confirm('Esta es su última oportunidad. ¿Confirmar eliminación total?')) return;
 
             state.participants = [];
-            saveToStorage();
             renderDashboard();
             renderParticipants();
             renderRequirements();
