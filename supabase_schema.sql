@@ -209,3 +209,38 @@ INSERT INTO requirement_sections (name, order_index) VALUES
 
 -- Configuración por defecto
 INSERT INTO settings (id, program_name, program_year) VALUES (1, 'Liderazgo JA', '2026');
+
+-- ==========================================
+-- 10. FUNCIÓN PARA ELIMINAR USUARIOS (ADMIN)
+-- ==========================================
+CREATE OR REPLACE FUNCTION public.delete_user_by_admin(target_user_id UUID)
+RETURNS VOID AS $$
+DECLARE
+  _caller_uid UUID := auth.uid(); -- Capturamos el UID del usuario que llama una sola vez
+  _caller_role TEXT;
+BEGIN
+  -- 1. Asegurarse de que el usuario que llama esté autenticado
+  IF _caller_uid IS NULL THEN
+    RAISE EXCEPTION 'Acceso denegado. No se pudo identificar al usuario que llama (no autenticado).';
+  END IF;
+
+  -- 2. Obtener el rol del usuario que está ejecutando la función
+  SELECT role INTO _caller_role FROM public.profiles WHERE id = _caller_uid;
+
+  -- 3. Verificar si el perfil del usuario que llama existe y tiene un rol
+  IF _caller_role IS NULL THEN
+    RAISE EXCEPTION 'Acceso denegado. Perfil no encontrado o rol no asignado para el usuario que llama (ID: %).', _caller_uid;
+  END IF;
+
+  -- 4. Verificar si es administrador
+  IF _caller_role = 'admin' THEN
+    -- 5. Intentar borrar de la tabla de autenticación
+    DELETE FROM auth.users WHERE id = target_user_id;
+    IF NOT FOUND THEN
+      RAISE EXCEPTION 'No se encontró el usuario con ID % en auth.users o no se pudo eliminar.', target_user_id;
+    END IF;
+  ELSE
+    RAISE EXCEPTION 'Acceso denegado. Solo administradores pueden eliminar usuarios. Su rol es: %', _caller_role;
+  END IF;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
