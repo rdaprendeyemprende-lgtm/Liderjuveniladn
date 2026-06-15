@@ -29,7 +29,8 @@ CREATE TABLE requirements (
     section_id UUID REFERENCES requirement_sections(id) ON DELETE CASCADE,
     name TEXT NOT NULL,
     deadline DATE NOT NULL,
-    created_at TIMESTAMPTZ DEFAULT now()
+    created_at TIMESTAMPTZ DEFAULT now(),
+    UNIQUE(section_id, name)
 );
 
 -- 5. PARTICIPANTES

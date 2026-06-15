@@ -1191,6 +1191,7 @@
         // ==================== INITIALIZATION ====================
         async function init() {
             await checkAuth();
+            console.log("Current user role:", state.currentUser ? state.currentUser.role : "Not logged in");
         }
 
         async function checkAuth() {
@@ -1250,29 +1251,34 @@
                 const { data: groups } = await supabaseClient.from('groups').select('*');
                 state.groups = (groups || []).map(g => ({ ...g, logo: g.logo_url }));
 
-                // Cargar Secciones y Requisitos desde la base de datos
+                // 1. Cargar Secciones y requisitos existentes
                 const { data: sections } = await supabaseClient.from('requirement_sections').select('*, requirements(*)').order('order_index');
+                
                 if (sections) {
-                    sections.forEach(s => {
+                    for (const s of sections) {
                         if (REQUIREMENTS_DATA[s.name]) {
-                            // Guardamos el ID de la sección para facilitar actualizaciones posteriores
                             REQUIREMENTS_DATA[s.name].db_id = s.id;
                             
                             if (s.requirements) {
-                                s.requirements.forEach(dbReq => {
-                                    // Buscamos por ID o por nombre para evitar duplicados de requisitos estáticos
+                                for (const dbReq of s.requirements) {
+                                    // Sincronizar ID de la DB con el objeto local si coinciden en nombre o ID
                                     const index = REQUIREMENTS_DATA[s.name].items.findIndex(r => r.id === dbReq.id || r.name === dbReq.name);
                                     if (index !== -1) {
-                                        // Fusionar datos de la DB con el objeto local
                                         REQUIREMENTS_DATA[s.name].items[index] = { ...REQUIREMENTS_DATA[s.name].items[index], ...dbReq };
                                     } else {
-                                        // Agregar requisitos nuevos creados dinámicamente
-                                        REQUIREMENTS_DATA[s.name].items.push(dbReq);
+                                        if (!REQUIREMENTS_DATA[s.name].items.find(r => r.id === dbReq.id)) {
+                                            REQUIREMENTS_DATA[s.name].items.push(dbReq);
+                                        }
                                     }
-                                });
+                                }
                             }
                         }
-                    });
+                    }
+                }
+
+                // 2. Ejecutar sincronización (Solo Admin) para asegurar que todos los requisitos del JS existan en la DB
+                if (state.currentUser && state.currentUser.role === 'admin') {
+                    await autoSyncStaticRequirements();
                 }
 
                 let query = supabaseClient.from('participants').select('*, completions(*), observations(*)');
@@ -1318,6 +1324,31 @@
                 console.error("Error de carga:", err.message);
                 showToast("Error cargando datos de la base de datos", "error");
             }
+        }
+
+        // Función para sincronizar requisitos locales (hardcoded) con la base de datos
+        async function autoSyncStaticRequirements() {
+            try {
+                for (const [sectionName, section] of Object.entries(REQUIREMENTS_DATA)) {
+                    if (!section.db_id) continue;
+
+                    for (let i = 0; i < section.items.length; i++) {
+                        const item = section.items[i];
+                        // Forzamos el ID del JS hacia la base de datos para que coincidan siempre
+                        const { data, error } = await supabaseClient.from('requirements').upsert({
+                            id: item.id, 
+                            section_id: section.db_id,
+                            name: item.name,
+                            deadline: item.deadline
+                        }, { onConflict: 'id' }).select();
+
+                        if (!error && data && data[0]) {
+                            section.items[i].id = data[0].id;
+                            section.items[i].section_id = data[0].section_id;
+                        }
+                    }
+                }
+            } catch (err) { console.error("Error en sincronización automática:", err); }
         }
 
         // ==================== TAB NAVIGATION ====================
@@ -1824,12 +1855,10 @@
                     if (error) throw error;
                     if (participant.completions) delete participant.completions[reqId];
                 }
-                showToast(checked ? 'Requisito marcado ✓' : 'Requisito desmarcado');
+                showToast(checked ? 'Progreso guardado permanentemente ✓' : 'Requisito desmarcado');
             } catch (err) {
                 console.error("Error al actualizar requisito:", err);
-                if (err.code === '22P02') {
-                    showToast('Error: La base de datos espera un formato UUID. Ejecuta el script SQL de actualización en Supabase.', 'error');
-                } else if (err.code === '23503') {
+                if (err.code === '23503') {
                     showToast('Error: El requisito "' + reqId + '" no existe en la base de datos (Falta sincronizar).', 'error');
                 } else {
                     showToast('Error de conexión: ' + err.message, 'error');
